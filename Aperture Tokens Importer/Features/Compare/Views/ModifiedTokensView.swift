@@ -44,7 +44,34 @@ struct ModifiedTokenListItem: View {
   private var changesSection: some View {
     VStack(alignment: .leading, spacing: 6) {
       ForEach(modification.colorChanges) { change in
-        ColorChangeRow(change: change)
+        colorChangeRow(change: change)
+      }
+    }
+  }
+  
+  private func colorChangeRow(change: ColorChange) -> some View {
+    HStack(spacing: 8) {
+      Text("\(change.brandName) • \(change.theme):")
+        .font(.caption)
+        .fontWeight(.medium)
+        .frame(width: 100, alignment: .leading)
+      
+      // Ancienne couleur
+      HStack(spacing: 4) {
+        ColorSquarePreview(color: Color(hex: change.oldColor))
+        Text(change.oldColor)
+          .font(.caption)
+      }
+      
+      Image(systemName: "arrow.right")
+        .font(.caption)
+        .foregroundStyle(.secondary)
+      
+      // Nouvelle couleur
+      HStack(spacing: 4) {
+        ColorSquarePreview(color: Color(hex: change.newColor))
+        Text(change.newColor)
+          .font(.caption)
       }
     }
   }

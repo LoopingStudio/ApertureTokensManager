@@ -62,17 +62,11 @@ struct ColorSquareWithPopover: View {
         showPopover.toggle()
       }
       .popover(isPresented: $showPopover, arrowEdge: .top) {
-        ColorDetailPopover(value: value)
+        colorDetailPopover
       }
   }
-}
 
-// MARK: - Color Detail Popover
-
-struct ColorDetailPopover: View {
-  let value: TokenValue
-
-  var body: some View {
+  private var colorDetailPopover: some View {
     VStack(alignment: .leading, spacing: 12) {
       Text("Détails de la couleur")
         .font(.headline)
@@ -136,9 +130,11 @@ struct CompactColorPreview: View {
       // Legacy colors
       if let legacy = modes.legacy {
         VStack(spacing: 3) {
-          Text("Legacy")
-            .font(.caption2)
-            .foregroundStyle(.secondary)
+          if shouldShowLabels {
+            Text("Legacy")
+              .font(.caption2)
+              .foregroundStyle(.secondary)
+          }
 
           HStack(spacing: 3) {
             if let light = legacy.light {
@@ -154,9 +150,11 @@ struct CompactColorPreview: View {
       // New Brand colors
       if let newBrand = modes.newBrand {
         VStack(spacing: 3) {
-          Text("New Brand")
-            .font(.caption2)
-            .foregroundStyle(.secondary)
+          if shouldShowLabels {
+            Text("New Brand")
+              .font(.caption2)
+              .foregroundStyle(.secondary)
+          }
 
           HStack(spacing: 3) {
             if let light = newBrand.light {
@@ -171,6 +169,8 @@ struct CompactColorPreview: View {
     }
   }
 }
+
+// MARK: - View Extension
 
 extension View {
   func controlRoundedBackground() -> some View {
@@ -202,143 +202,3 @@ struct TokenInfoHeader: View {
   }
 }
 
-// MARK: - Summary Card
-
-struct SummaryCard: View {
-  let title: String
-  let count: Int
-  let color: Color
-  let icon: String
-  let onTap: () -> Void
-
-  var body: some View {
-    VStack(spacing: 8) {
-      Image(systemName: icon)
-        .font(.largeTitle)
-        .foregroundStyle(color)
-
-      Text("\(count)")
-        .font(.title)
-        .fontWeight(.bold)
-        .foregroundStyle(color)
-
-      Text(title)
-        .font(.headline)
-        .multilineTextAlignment(.center)
-    }
-    .frame(maxWidth: .infinity, minHeight: 120)
-    .padding()
-    .background(
-      RoundedRectangle(cornerRadius: 12)
-        .fill(color.opacity(0.1))
-        .overlay(
-          RoundedRectangle(cornerRadius: 12)
-            .stroke(color.opacity(0.3), lineWidth: 1)
-        )
-    )
-    .onTapGesture { onTap() }
-  }
-}
-
-// MARK: - File Info Card
-
-struct FileInfoCard: View {
-  let title: String
-  let metadata: TokenMetadata?
-  let color: Color
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      Text(title)
-        .font(.headline)
-        .foregroundStyle(color)
-
-      if let metadata = metadata {
-        VStack(alignment: .leading, spacing: 4) {
-          Text("Exporté le: \(formatFrenchDate(metadata.exportedAt))")
-            .font(.caption)
-            .foregroundStyle(.primary)
-
-          Text("Version: \(metadata.version)")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-
-          Text("Générateur: \(metadata.generator)")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        }
-      } else {
-        Text("Pas de métadonnées")
-          .font(.caption)
-          .foregroundStyle(.secondary)
-      }
-    }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .padding()
-    .background(
-      RoundedRectangle(cornerRadius: 8)
-        .fill(color.opacity(0.1))
-        .overlay(
-          RoundedRectangle(cornerRadius: 8)
-            .stroke(color.opacity(0.3), lineWidth: 1)
-        )
-    )
-  }
-
-  private func formatFrenchDate(_ dateString: String) -> String {
-    let inputFormatter = DateFormatter()
-    let outputFormatter = DateFormatter()
-    outputFormatter.locale = Locale(identifier: "fr_FR")
-    outputFormatter.dateStyle = .medium
-    outputFormatter.timeStyle = .short
-
-    let formats = [
-      "yyyy-MM-dd HH:mm:ss",
-      "yyyy-MM-dd'T'HH:mm:ss",
-      "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-      "yyyy-MM-dd"
-    ]
-
-    for format in formats {
-      inputFormatter.dateFormat = format
-      if let date = inputFormatter.date(from: dateString) {
-        return outputFormatter.string(from: date)
-      }
-    }
-
-    return dateString
-  }
-}
-
-// MARK: - Color Change Row
-
-struct ColorChangeRow: View {
-  let change: ColorChange
-
-  var body: some View {
-    HStack(spacing: 8) {
-      Text("\(change.brandName) • \(change.theme):")
-        .font(.caption)
-        .fontWeight(.medium)
-        .frame(width: 100, alignment: .leading)
-
-      // Ancienne couleur
-      HStack(spacing: 4) {
-        ColorSquarePreview(color: Color(hex: change.oldColor))
-        Text(change.oldColor)
-          .font(.caption)
-      }
-
-      Image(systemName: "arrow.right")
-        .font(.caption)
-        .foregroundStyle(.secondary)
-
-      // Nouvelle couleur
-      HStack(spacing: 4) {
-        ColorSquarePreview(color: Color(hex: change.newColor))
-        Text(change.newColor)
-          .font(.caption)
-      }
-    }
-  }
-}
