@@ -25,9 +25,14 @@ public struct TokenThemes: Codable, Equatable, Sendable {
   }
 
   public struct Appearance: Codable, Equatable, Sendable {
-    let light: String
-    let dark: String
+    let light: TokenValue?
+    let dark: TokenValue?
   }
+}
+
+public struct TokenValue: Codable, Equatable, Sendable {
+  let hex: String
+  let primitiveName: String
 }
 
 public struct TokenNode: Identifiable, Codable, Equatable, Sendable {

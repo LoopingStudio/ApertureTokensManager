@@ -60,11 +60,10 @@ struct TokenDetailView: View {
             .font(.headline)
             .fontWeight(.medium)
           
-          HStack(spacing: 12) {
+          HStack(alignment: .top, spacing: 12) {
             if let legacy = modes.legacy {
               brandTheme(brandName: Brand.legacy, theme: legacy)
             }
-            
             if let newBrand = modes.newBrand {
               brandTheme(brandName: Brand.newBrand, theme: newBrand)
             }
@@ -112,12 +111,18 @@ struct TokenDetailView: View {
       Spacer()
       
       if let modes = token.modes {
-        HStack(spacing: 6) {
-          if let legacy = modes.legacy {
-            colorPreview(color: Color(hex: legacy.light), size: 24)
+        VStack(alignment: .trailing, spacing: 4) {
+          if let lightValue = modes.legacy?.light {
+            colorPreviewWithInfo(
+              value: lightValue,
+              brand: Brand.legacy
+            )
           }
-          if let newBrand = modes.newBrand {
-            colorPreview(color: Color(hex: newBrand.light), size: 24)
+          if let lightValue = modes.newBrand?.light {
+            colorPreviewWithInfo(
+              value: lightValue,
+              brand: Brand.newBrand
+            )
           }
         }
       }
@@ -141,17 +146,21 @@ struct TokenDetailView: View {
         .fontWeight(.medium)
         .foregroundStyle(.primary)
 
-      HStack(spacing: 4) {
-        themeSquare(color: Color(hex: theme.light), label: "Light")
-        themeSquare(color: Color(hex: theme.dark), label: "Dark")
+      HStack(alignment: .top, spacing: 4) {
+        if let lightValue = theme.light {
+          themeSquare(value: lightValue, label: ThemeType.light.capitalized)
+        }
+        if let darkValue = theme.dark {
+          themeSquare(value: darkValue, label: ThemeType.dark.capitalized)
+        }
       }
     }
   }
 
-  private func themeSquare(color: Color, label: String) -> some View {
-    VStack(spacing: 2) {
+  private func themeSquare(value: TokenValue, label: String) -> some View {
+    VStack(spacing: 4) {
       RoundedRectangle(cornerRadius: 8)
-        .fill(color)
+        .fill(Color(hex: value.hex))
         .frame(width: 64, height: 64)
         .overlay(
           RoundedRectangle(cornerRadius: 8)
@@ -159,9 +168,47 @@ struct TokenDetailView: View {
         )
         .shadow(radius: 1)
 
-      Text(label)
-        .font(.caption2)
-        .foregroundStyle(.secondary)
+      VStack(spacing: 2) {
+        Text(label)
+          .font(.caption2)
+          .fontWeight(.medium)
+          .foregroundStyle(.primary)
+        
+        Text(value.hex)
+          .font(.caption2)
+          .fontWeight(.semibold)
+          .foregroundStyle(.secondary)
+        
+        Text(value.primitiveName)
+          .font(.caption2)
+          .foregroundStyle(.tertiary)
+          .lineLimit(2)
+          .multilineTextAlignment(.center)
+      }
+      .frame(width: 100)
+    }
+  }
+  
+  private func colorPreviewWithInfo(value: TokenValue, brand: String) -> some View {
+    HStack(alignment: .top, spacing: 8) {
+      VStack(alignment: .trailing, spacing: 2) {
+        Text(brand)
+          .font(.caption2)
+          .fontWeight(.medium)
+          .foregroundStyle(.primary)
+        Text(value.primitiveName)
+          .font(.caption2)
+          .foregroundStyle(.tertiary)
+          .lineLimit(1)
+      }
+
+      RoundedRectangle(cornerRadius: 4)
+        .fill(Color(hex: value.hex))
+        .frame(width: 24, height: 24)
+        .overlay(
+          RoundedRectangle(cornerRadius: 4)
+            .stroke(Color.secondary.opacity(0.3), lineWidth: 0.5)
+        )
     }
   }
 }

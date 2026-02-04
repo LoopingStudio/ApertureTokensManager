@@ -114,21 +114,28 @@ actor ComparisonService {
     
     var changes: [ColorChange] = []
     
-    // Comparer les thèmes light et dark
-    let themeComparisons: [(oldColor: String, newColor: String, themeType: String)] = [
-      (oldTheme.light, newTheme.light, ThemeType.light),
-      (oldTheme.dark, newTheme.dark, ThemeType.dark)
-    ]
+    // Compare light theme
+    let oldLight = oldTheme.light?.hex
+    let newLight = newTheme.light?.hex
+    if oldLight != newLight && oldLight != nil && newLight != nil {
+      changes.append(ColorChange(
+        brandName: brandName,
+        theme: ThemeType.light,
+        oldColor: oldLight!,
+        newColor: newLight!
+      ))
+    }
     
-    for comparison in themeComparisons {
-      if comparison.oldColor != comparison.newColor {
-        changes.append(ColorChange(
-          brandName: brandName,
-          theme: comparison.themeType,
-          oldColor: comparison.oldColor,
-          newColor: comparison.newColor
-        ))
-      }
+    // Compare dark theme  
+    let oldDark = oldTheme.dark?.hex
+    let newDark = newTheme.dark?.hex
+    if oldDark != newDark && oldDark != nil && newDark != nil {
+      changes.append(ColorChange(
+        brandName: brandName,
+        theme: ThemeType.dark,
+        oldColor: oldDark!,
+        newColor: newDark!
+      ))
     }
     
     return changes
@@ -235,14 +242,22 @@ actor ComparisonService {
     
     if let legacy = modes.legacy {
       colorInfo += "**Legacy:**\n"
-      colorInfo += "- Light: `\(legacy.light)`\n"
-      colorInfo += "- Dark: `\(legacy.dark)`\n\n"
+      if let light = legacy.light {
+        colorInfo += "- Light: `\(light.hex)` (primitive: `\(light.primitiveName)`)\n"
+      }
+      if let dark = legacy.dark {
+        colorInfo += "- Dark: `\(dark.hex)` (primitive: `\(dark.primitiveName)`)\n\n"
+      }
     }
     
     if let newBrand = modes.newBrand {
       colorInfo += "**New Brand:**\n"
-      colorInfo += "- Light: `\(newBrand.light)`\n"
-      colorInfo += "- Dark: `\(newBrand.dark)`\n\n"
+      if let light = newBrand.light {
+        colorInfo += "- Light: `\(light.hex)` (primitive: `\(light.primitiveName)`)\n"
+      }
+      if let dark = newBrand.dark {
+        colorInfo += "- Dark: `\(dark.hex)` (primitive: `\(dark.primitiveName)`)\n\n"
+      }
     }
     
     return colorInfo

@@ -10,11 +10,27 @@
 		18D87B2B2F28C30100D76485 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 18D87B2A2F28C30100D76485 /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		18610F3B2F337400005F2E4D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 18D87B132F28C2CF00D76485 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 18D87B1A2F28C2CF00D76485;
+			remoteInfo = "Aperture Tokens Importer";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		18610F372F337400005F2E4D /* ApertureTokensImporterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApertureTokensImporterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		18D87B1B2F28C2CF00D76485 /* Aperture Tokens Importer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Aperture Tokens Importer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		18610F382F337400005F2E4D /* ApertureTokensImporterTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ApertureTokensImporterTests;
+			sourceTree = "<group>";
+		};
 		18D87B1D2F28C2CF00D76485 /* Aperture Tokens Importer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Aperture Tokens Importer";
@@ -23,6 +39,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		18610F342F337400005F2E4D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		18D87B182F28C2CF00D76485 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -38,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				18D87B1D2F28C2CF00D76485 /* Aperture Tokens Importer */,
+				18610F382F337400005F2E4D /* ApertureTokensImporterTests */,
 				18D87B1C2F28C2CF00D76485 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -46,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				18D87B1B2F28C2CF00D76485 /* Aperture Tokens Importer.app */,
+				18610F372F337400005F2E4D /* ApertureTokensImporterTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -53,6 +78,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		18610F362F337400005F2E4D /* ApertureTokensImporterTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 18610F3D2F337400005F2E4D /* Build configuration list for PBXNativeTarget "ApertureTokensImporterTests" */;
+			buildPhases = (
+				18610F332F337400005F2E4D /* Sources */,
+				18610F342F337400005F2E4D /* Frameworks */,
+				18610F352F337400005F2E4D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				18610F3C2F337400005F2E4D /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				18610F382F337400005F2E4D /* ApertureTokensImporterTests */,
+			);
+			name = ApertureTokensImporterTests;
+			packageProductDependencies = (
+			);
+			productName = ApertureTokensImporterTests;
+			productReference = 18610F372F337400005F2E4D /* ApertureTokensImporterTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		18D87B1A2F28C2CF00D76485 /* Aperture Tokens Importer */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 18D87B262F28C2D000D76485 /* Build configuration list for PBXNativeTarget "Aperture Tokens Importer" */;
@@ -86,6 +134,10 @@
 				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
+					18610F362F337400005F2E4D = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = 18D87B1A2F28C2CF00D76485;
+					};
 					18D87B1A2F28C2CF00D76485 = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
@@ -109,11 +161,19 @@
 			projectRoot = "";
 			targets = (
 				18D87B1A2F28C2CF00D76485 /* Aperture Tokens Importer */,
+				18610F362F337400005F2E4D /* ApertureTokensImporterTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		18610F352F337400005F2E4D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		18D87B192F28C2CF00D76485 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -124,6 +184,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		18610F332F337400005F2E4D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		18D87B172F28C2CF00D76485 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -133,7 +200,67 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		18610F3C2F337400005F2E4D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 18D87B1A2F28C2CF00D76485 /* Aperture Tokens Importer */;
+			targetProxy = 18610F3B2F337400005F2E4D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		18610F3E2F337400005F2E4D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XBGRFP286;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pictarine.ApertureTokensImporterTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Aperture Tokens Importer.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Aperture Tokens Importer";
+				XROS_DEPLOYMENT_TARGET = 26.1;
+			};
+			name = Debug;
+		};
+		18610F3F2F337400005F2E4D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XBGRFP286;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pictarine.ApertureTokensImporterTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Aperture Tokens Importer.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Aperture Tokens Importer";
+				XROS_DEPLOYMENT_TARGET = 26.1;
+			};
+			name = Release;
+		};
 		18D87B242F28C2D000D76485 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -361,6 +488,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		18610F3D2F337400005F2E4D /* Build configuration list for PBXNativeTarget "ApertureTokensImporterTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				18610F3E2F337400005F2E4D /* Debug */,
+				18610F3F2F337400005F2E4D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		18D87B162F28C2CF00D76485 /* Build configuration list for PBXProject "Aperture Tokens Importer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

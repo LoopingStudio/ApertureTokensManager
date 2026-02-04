@@ -403,12 +403,18 @@ struct CompareView: View {
       
       // Prévisualisation des couleurs si disponibles
       if let modes = token.modes {
-        HStack(spacing: 6) {
-          if let legacy = modes.legacy {
-            colorPreview(color: Color(hex: legacy.light), size: 20)
+        VStack(alignment: .trailing, spacing: 8) {
+          if let legacy = modes.legacy, let lightValue = legacy.light {
+            colorInfoBlock(
+              value: lightValue,
+              brand: "Legacy"
+            )
           }
-          if let newBrand = modes.newBrand {
-            colorPreview(color: Color(hex: newBrand.light), size: 20)
+          if let newBrand = modes.newBrand, let lightValue = newBrand.light {
+            colorInfoBlock(
+              value: lightValue,
+              brand: "New Brand"
+            )
           }
         }
       }
@@ -504,6 +510,37 @@ struct CompareView: View {
           .frame(width: 20, height: 20)
         Text(change.newColor)
           .font(.caption)
+      }
+    }
+  }
+  
+  private func colorInfoBlock(value: TokenValue, brand: String) -> some View {
+    VStack(alignment: .trailing, spacing: 2) {
+      Text(brand)
+        .font(.caption2)
+        .fontWeight(.medium)
+        .foregroundStyle(.primary)
+      
+      HStack(spacing: 6) {
+        VStack(alignment: .trailing, spacing: 2) {
+          Text(value.hex)
+            .font(.caption2)
+            .fontWeight(.semibold)
+            .foregroundStyle(.secondary)
+          
+          Text(value.primitiveName)
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
+            .lineLimit(1)
+        }
+        
+        RoundedRectangle(cornerRadius: 4)
+          .fill(Color(hex: value.hex))
+          .frame(width: 24, height: 24)
+          .overlay(
+            RoundedRectangle(cornerRadius: 4)
+              .stroke(Color.secondary.opacity(0.3), lineWidth: 0.5)
+          )
       }
     }
   }

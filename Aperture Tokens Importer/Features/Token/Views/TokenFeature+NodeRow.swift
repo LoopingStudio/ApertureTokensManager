@@ -60,11 +60,11 @@ struct NodeRow: View {
   private func getFirstAvailableLightColor() -> String? {
     guard let modes = node.modes else { return nil }
 
-    if let legacy = modes.legacy {
-      return legacy.light
+    if let lightValue = modes.legacy?.light {
+      return lightValue.hex
     }
-    if let newBrand = modes.newBrand {
-      return newBrand.light
+    if let lightValue = modes.newBrand?.light {
+      return lightValue.hex
     }
     return nil
   }

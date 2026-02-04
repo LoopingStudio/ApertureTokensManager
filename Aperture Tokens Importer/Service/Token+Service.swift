@@ -169,32 +169,39 @@ actor TokenService {
     default: return
     }
     
-    guard let selectedTheme = theme else { return }
+    guard let theme else { return }
     
     let colorsetName = token.name.replacingOccurrences(of: " ", with: "-").lowercased()
     let colorsetURL = parentURL.appendingPathComponent("\(colorsetName).colorset")
     try FileManager.default.createDirectory(at: colorsetURL, withIntermediateDirectories: true)
     
-    let colors: [[String: Any]] = [
-      [
+    var colors: [[String: Any]] = []
+    
+    // Add light appearance if available
+    if let lightValue = theme.light {
+      colors.append([
         "color": [
           "color-space": "srgb",
-          "components": hexToComponents(selectedTheme.light)
+          "components": hexToComponents(lightValue.hex)
         ],
         "idiom": "universal"
-      ],
-      [
+      ])
+    }
+    
+    // Add dark appearance if available  
+    if let darkValue = theme.dark {
+      colors.append([
         "color": [
           "color-space": "srgb", 
-          "components": hexToComponents(selectedTheme.dark)
+          "components": hexToComponents(darkValue.hex)
         ],
         "idiom": "universal",
         "appearances": [[
           "appearance": "luminosity",
           "value": "dark"
         ]]
-      ]
-    ]
+      ])
+    }
     
     let contentsJSON: [String: Any] = [
       "colors": colors,
