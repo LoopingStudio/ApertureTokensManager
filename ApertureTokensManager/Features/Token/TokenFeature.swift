@@ -5,7 +5,7 @@ import SwiftUI
 
 @Reducer
 public struct TokenFeature: Sendable {
-  @Dependency(\.tokenClient) var tokenClient
+  @Dependency(\.exportClient) var exportClient
   @Dependency(\.fileClient) var fileClient
   @Dependency(\.historyClient) var historyClient
 

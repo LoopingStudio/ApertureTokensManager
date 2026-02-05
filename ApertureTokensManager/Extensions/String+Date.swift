@@ -1,54 +1,36 @@
 import Foundation
 
 extension String {
-  public var formatFrenchDate: String {
-    // Try to parse common date formats and convert to French format
+  /// Parses the string using common date formats and returns a Date if successful
+  private func parseDate() -> Date? {
     let inputFormatter = DateFormatter()
+    for format in DateFormatPatterns.all {
+      inputFormatter.dateFormat = format
+      if let date = inputFormatter.date(from: self) {
+        return date
+      }
+    }
+    return nil
+  }
+  
+  /// Converts date string to French format (medium date, short time)
+  public var formatFrenchDate: String {
+    guard let date = parseDate() else { return self }
+    
     let outputFormatter = DateFormatter()
     outputFormatter.locale = Locale(identifier: "fr_FR")
     outputFormatter.dateStyle = .medium
     outputFormatter.timeStyle = .short
-
-    // Try different input formats
-    let formats = [
-      "yyyy-MM-dd HH:mm:ss",
-      "yyyy-MM-dd'T'HH:mm:ss",
-      "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-      "yyyy-MM-dd"
-    ]
-
-    for format in formats {
-      inputFormatter.dateFormat = format
-      if let date = inputFormatter.date(from: self) {
-        return outputFormatter.string(from: date)
-      }
-    }
-
-    // If no format matches, return original string
-    return self
+    return outputFormatter.string(from: date)
   }
   
   /// Converts date string to short format (dd/MM/yy)
   func toShortDate() -> String {
-    let inputFormatter = DateFormatter()
+    guard let date = parseDate() else { return self }
+    
     let outputFormatter = DateFormatter()
     outputFormatter.locale = Locale(identifier: "fr_FR")
     outputFormatter.dateFormat = "dd/MM/yy"
-    
-    let formats = [
-      "yyyy-MM-dd HH:mm:ss",
-      "yyyy-MM-dd'T'HH:mm:ss",
-      "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-      "yyyy-MM-dd"
-    ]
-    
-    for format in formats {
-      inputFormatter.dateFormat = format
-      if let date = inputFormatter.date(from: self) {
-        return outputFormatter.string(from: date)
-      }
-    }
-    
-    return self
+    return outputFormatter.string(from: date)
   }
 }

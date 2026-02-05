@@ -18,6 +18,13 @@ extension ComparisonClient: DependencyKey {
       exportToNotion: { try await service.exportToNotion($0, oldMetadata: $1, newMetadata: $2) }
     )
   }()
+  
+  static let testValue: Self = .init(
+    compareTokens: { _, _ in ComparisonChanges(added: [], removed: [], modified: []) },
+    exportToNotion: { _, _, _ in }
+  )
+  
+  static let previewValue: Self = testValue
 }
 
 extension DependencyValues {

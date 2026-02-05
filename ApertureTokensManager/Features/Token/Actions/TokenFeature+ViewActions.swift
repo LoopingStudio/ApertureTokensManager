@@ -74,7 +74,7 @@ extension TokenFeature {
       }
     case .exportButtonTapped:
       return .run { [nodesToSave = state.rootNodes] _ in
-        try await tokenClient.exportDesignSystem(nodesToSave)
+        try await exportClient.exportDesignSystem(nodesToSave)
       } catch: { error, _ in
         print("Erreur export: \(error)")
       }

@@ -162,12 +162,12 @@ struct TokenDetailView: View {
   }
 
   private func themeSquare(value: TokenValue, label: String) -> some View {
-    VStack(spacing: 4) {
-      RoundedRectangle(cornerRadius: 8)
+    VStack(spacing: UIConstants.Spacing.small) {
+      RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
         .fill(Color(hex: value.hex))
-        .frame(width: 64, height: 64)
+        .frame(width: UIConstants.Size.colorSquare, height: UIConstants.Size.colorSquare)
         .overlay(
-          RoundedRectangle(cornerRadius: 8)
+          RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
             .stroke(Color.secondary.opacity(0.3), lineWidth: 1.0)
         )
         .shadow(radius: 1)
@@ -189,30 +189,7 @@ struct TokenDetailView: View {
           .lineLimit(2)
           .multilineTextAlignment(.center)
       }
-      .frame(width: 100)
-    }
-  }
-  
-  private func colorPreviewWithInfo(value: TokenValue, brand: String) -> some View {
-    HStack(alignment: .top, spacing: 8) {
-      VStack(alignment: .trailing, spacing: 2) {
-        Text(brand)
-          .font(.caption2)
-          .fontWeight(.medium)
-          .foregroundStyle(.primary)
-        Text(value.primitiveName)
-          .font(.caption2)
-          .foregroundStyle(.tertiary)
-          .lineLimit(1)
-      }
-
-      RoundedRectangle(cornerRadius: 4)
-        .fill(Color(hex: value.hex))
-        .frame(width: 24, height: 24)
-        .overlay(
-          RoundedRectangle(cornerRadius: 4)
-            .stroke(Color.secondary.opacity(0.3), lineWidth: 0.5)
-        )
+      .frame(width: UIConstants.Size.colorLabelWidth)
     }
   }
 }

@@ -4,7 +4,7 @@ import SwiftUI
 
 @Reducer
 public struct CompareFeature: Sendable {
-  @Dependency(\.tokenClient) var tokenClient
+  @Dependency(\.exportClient) var exportClient
   @Dependency(\.comparisonClient) var comparisonClient
   @Dependency(\.fileClient) var fileClient
   @Dependency(\.historyClient) var historyClient

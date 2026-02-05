@@ -3,7 +3,7 @@ import Dependencies
 import Foundation
 import UniformTypeIdentifiers
 
-actor TokenService {
+actor ExportService {
   @Dependency(\.fileClient) var fileClient
 
   // MARK: - Constants

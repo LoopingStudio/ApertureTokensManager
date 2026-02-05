@@ -23,6 +23,17 @@ extension FileClient: DependencyKey {
       pickDirectory: { try await service.pickDirectory(message: $0) }
     )
   }()
+  
+  static let testValue: Self = .init(
+    pickFile: { nil },
+    handleFileDrop: { _ in nil },
+    loadJSON: { _ in [] },
+    loadTokenExport: { _ in TokenExport(metadata: TokenMetadata(exportedAt: "", timestamp: 0, version: "", generator: ""), tokens: []) },
+    saveToFile: { _, _, _, _ in nil },
+    pickDirectory: { _ in nil }
+  )
+  
+  static let previewValue: Self = testValue
 }
 
 extension DependencyValues {

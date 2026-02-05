@@ -1,8 +1,8 @@
 import Foundation
 
-/// Helpers for token operations used across Compare views
+/// Helpers for token operations used across the app
 enum TokenHelpers {
-  /// Flattens a hierarchy of tokens into a flat array
+  /// Flattens a hierarchy of tokens into a flat array (tokens only)
   static func flattenTokens(_ tokens: [TokenNode]) -> [TokenNode] {
     var result: [TokenNode] = []
 
@@ -18,6 +18,36 @@ enum TokenHelpers {
     }
     flatten(tokens)
     return result
+  }
+  
+  /// Flattens a hierarchy of nodes into a flat array (all nodes: groups + tokens)
+  static func flattenAllNodes(_ nodes: [TokenNode]) -> [TokenNode] {
+    var result: [TokenNode] = []
+    
+    func addNodesRecursively(_ nodes: [TokenNode]) {
+      for node in nodes {
+        result.append(node)
+        if let children = node.children {
+          addNodesRecursively(children)
+        }
+      }
+    }
+    addNodesRecursively(nodes)
+    return result
+  }
+  
+  /// Counts leaf tokens (nodes with values) in a hierarchy
+  static func countLeafTokens(_ nodes: [TokenNode]) -> Int {
+    var count = 0
+    for node in nodes {
+      if node.type == .token {
+        count += 1
+      }
+      if let children = node.children {
+        count += countLeafTokens(children)
+      }
+    }
+    return count
   }
 
   /// Finds a token by its path in a token hierarchy

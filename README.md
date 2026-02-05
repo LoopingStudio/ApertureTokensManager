@@ -106,20 +106,42 @@ Cette application est conçue pour fonctionner avec le plugin Figma **ApertureEx
 ## 🛠 Architecture technique
 
 - **SwiftUI + TCA** : Interface moderne avec architecture The Composable Architecture
-- **Actor-based Services** : Gestion sécurisée des opérations asynchrones  
-- **Separation of Concerns** : Services dédiés pour fichiers, tokens et comparaisons
+- **Actor-based Services** : Gestion sécurisée des opérations asynchrones
+- **Separation of Concerns** : Services dédiés pour fichiers, export et comparaisons
+- **@Shared State** : Persistance des filtres avec le pattern Sharing de TCA
 - **macOS Native** : Intégration complète avec l'écosystème Apple
 
 ### Structure du projet
 ```
-Aperture Tokens Importer/
+ApertureTokensManager/
 ├── App/                          # Point d'entrée de l'application
-├── Features/                     # Features principales (Token, Compare)
-├── Service/                      # Services métier (File, Token, Comparison)
-├── Models/                       # Modèles de données
-├── Views/                        # Composants UI réutilisables
-└── Extensions/                   # Extensions utilitaires
+├── Components/                   # Composants UI réutilisables (DropZone, ColorPreview...)
+├── Extensions/                   # Extensions utilitaires (Color+Hex, String+Date...)
+├── Features/                     # Features TCA (Token, Compare)
+│   ├── Token/
+│   │   ├── Actions/              # Actions séparées (View, Internal, Binding)
+│   │   ├── Views/                # Vues spécifiques (NodeRow, NodeTree, TokenDetail)
+│   │   ├── TokenFeature.swift    # Reducer principal
+│   │   └── TokenFeature+View.swift
+│   └── Compare/
+│       ├── Actions/
+│       ├── Views/
+│       ├── CompareFeature.swift
+│       └── CompareFeature+View.swift
+├── Helpers/                      # Utilitaires partagés (TokenHelpers)
+├── Models/                       # Modèles de données (TokenNode, TokenExport...)
+└── Services/                     # Services métier
+    ├── ExportService/            # Export vers Xcode (XCAssets + Swift)
+    ├── ComparisonService/        # Comparaison de versions
+    ├── FileService/              # Gestion des fichiers
+    └── HistoryService/           # Historique des imports
 ```
+
+### Filtres d'export
+L'application supporte des filtres persistants pour l'export :
+- **Tokens commençant par #** : Exclut les tokens de type primitive
+- **Tokens finissant par _hover** : Exclut les états hover
+- **Groupe Utility** : Exclut le groupe utilitaire complet
 
 ## 🎨 Captures d'écran
 

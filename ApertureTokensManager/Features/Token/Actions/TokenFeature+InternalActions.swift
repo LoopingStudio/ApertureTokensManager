@@ -38,11 +38,11 @@ extension TokenFeature {
       applyFiltersToNodes(state: &state)
       
       // Sélectionner le premier node après filtrage
-      state.allNodes = buildFlatNodeList(state.rootNodes)
+      state.allNodes = TokenHelpers.flattenAllNodes(state.rootNodes)
       state.selectedNode = state.rootNodes.first
       
       // Count leaf tokens (nodes with values)
-      let tokenCount = countLeafTokens(tokenExport.tokens)
+      let tokenCount = TokenHelpers.countLeafTokens(tokenExport.tokens)
       
       // Save to history
       let entry = ImportHistoryEntry(
@@ -78,36 +78,6 @@ extension TokenFeature {
     }
   }
   
-  // Helper pour compter les tokens feuilles (ceux qui ont des valeurs)
-  private func countLeafTokens(_ nodes: [TokenNode]) -> Int {
-    var count = 0
-    for node in nodes {
-      if node.type == .token {
-        count += 1
-      }
-      if let children = node.children {
-        count += countLeafTokens(children)
-      }
-    }
-    return count
-  }
-  
-  // Helper pour construire une liste plate de tous les nœuds
-  private func buildFlatNodeList(_ nodes: [TokenNode]) -> [TokenNode] {
-    var result: [TokenNode] = []
-    
-    func addNodesRecursively(_ nodes: [TokenNode]) {
-      for node in nodes {
-        result.append(node)
-        if let children = node.children {
-          addNodesRecursively(children)
-        }
-      }
-    }
-    addNodesRecursively(nodes)
-    return result
-  }
-  
   // Fonction pour appliquer les filtres aux nœuds
   func applyFiltersToNodes(state: inout State) {
     applyFiltersToNodes(state: &state, filters: state.filters)
@@ -119,7 +89,7 @@ extension TokenFeature {
       filters: filters
     )
     // Reconstruire la liste plate après filtrage
-    state.allNodes = buildFlatNodeList(state.rootNodes)
+    state.allNodes = TokenHelpers.flattenAllNodes(state.rootNodes)
   }
   
   private func applyFiltersRecursively(
@@ -131,7 +101,7 @@ extension TokenFeature {
       var shouldDisableChildren = forceDisabled
       
       // Filtrer le groupe Utility
-      if nodes[i].type == .group && nodes[i].name.lowercased() == "utility" {
+      if nodes[i].type == .group && nodes[i].name.lowercased() == GroupNames.utility {
         if filters.excludeUtilityGroup {
           nodes[i].isEnabled = false
           shouldDisableChildren = true

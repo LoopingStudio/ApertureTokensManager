@@ -7,8 +7,8 @@ actor ComparisonService {
   @Dependency(\.fileClient) var fileClient
   
   func compareTokens(oldTokens: [TokenNode], newTokens: [TokenNode]) async -> ComparisonChanges {
-    let oldFlat = flattenTokens(oldTokens)
-    let newFlat = flattenTokens(newTokens)
+    let oldFlat = TokenHelpers.flattenTokens(oldTokens)
+    let newFlat = TokenHelpers.flattenTokens(newTokens)
     
     // Créer des dictionnaires pour la comparaison rapide par chemin
     let oldDict = Dictionary(uniqueKeysWithValues: oldFlat.map { ($0.path ?? $0.name, $0) })
@@ -29,24 +29,6 @@ actor ComparisonService {
   }
   
   // MARK: - Private Methods
-  
-  private func flattenTokens(_ nodes: [TokenNode]) -> [TokenNode] {
-    var result: [TokenNode] = []
-    
-    func addTokensRecursively(_ nodes: [TokenNode]) {
-      for node in nodes {
-        if node.type == .token {
-          result.append(node)
-        }
-        if let children = node.children {
-          addTokensRecursively(children)
-        }
-      }
-    }
-    
-    addTokensRecursively(nodes)
-    return result
-  }
   
   private func findAddedTokens(oldDict: [String: TokenNode], newDict: [String: TokenNode]) -> [TokenSummary] {
     return newDict.values.compactMap { newToken in
@@ -115,26 +97,27 @@ actor ComparisonService {
     var changes: [ColorChange] = []
     
     // Compare light theme
-    let oldLight = oldTheme.light?.hex
-    let newLight = newTheme.light?.hex
-    if oldLight != newLight && oldLight != nil && newLight != nil {
+    // Compare light theme
+    if let oldLight = oldTheme.light?.hex,
+       let newLight = newTheme.light?.hex,
+       oldLight != newLight {
       changes.append(ColorChange(
         brandName: brandName,
         theme: ThemeType.light,
-        oldColor: oldLight!,
-        newColor: newLight!
+        oldColor: oldLight,
+        newColor: newLight
       ))
     }
     
     // Compare dark theme  
-    let oldDark = oldTheme.dark?.hex
-    let newDark = newTheme.dark?.hex
-    if oldDark != newDark && oldDark != nil && newDark != nil {
+    if let oldDark = oldTheme.dark?.hex,
+       let newDark = newTheme.dark?.hex,
+       oldDark != newDark {
       changes.append(ColorChange(
         brandName: brandName,
         theme: ThemeType.dark,
-        oldColor: oldDark!,
-        newColor: newDark!
+        oldColor: oldDark,
+        newColor: newDark
       ))
     }
     
@@ -153,7 +136,9 @@ actor ComparisonService {
       newMetadata: newMetadata
     )
 
-    let data = markdownContent.data(using: .utf8)!
+    guard let data = markdownContent.data(using: .utf8) else {
+      throw NSError(domain: "ComparisonService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode markdown"])
+    }
     _ = try await fileClient.saveToFile(
       data,
       "comparison-export-notion.md", 
