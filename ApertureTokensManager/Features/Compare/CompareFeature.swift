@@ -4,10 +4,11 @@ import SwiftUI
 
 @Reducer
 public struct CompareFeature: Sendable {
-  @Dependency(\.exportClient) var exportClient
   @Dependency(\.comparisonClient) var comparisonClient
+  @Dependency(\.exportClient) var exportClient
   @Dependency(\.fileClient) var fileClient
   @Dependency(\.historyClient) var historyClient
+  @Dependency(\.suggestionClient) var suggestionClient
 
   // MARK: - File State
   
@@ -87,29 +88,32 @@ public struct CompareFeature: Sendable {
     public enum Internal: Sendable, Equatable {
       case comparisonCompleted(ComparisonChanges)
       case exportLoaded(FileType, TokenExport, URL)
+      case historyLoaded([ComparisonHistoryEntry])
       case loadFile(FileType, URL)
       case loadingFailed(String)
       case performComparison
-      case historyLoaded([ComparisonHistoryEntry])
       case setBaseAsOldFile(tokens: [TokenNode], metadata: TokenMetadata)
+      case suggestionsComputed([AutoSuggestion])
     }
 
     @CasePathable
     public enum View: Sendable, Equatable {
+      case acceptAutoSuggestion(removedTokenPath: String)
+      case clearHistory
       case compareButtonTapped
       case exportToNotionTapped
       case fileDroppedWithProvider(FileType, NSItemProvider)
+      case historyEntryTapped(ComparisonHistoryEntry)
+      case onAppear
+      case rejectAutoSuggestion(removedTokenPath: String)
       case removeFile(FileType)
+      case removeHistoryEntry(UUID)
       case resetComparison
       case selectChange(TokenModification?)
       case selectFileTapped(FileType)
       case suggestReplacement(removedTokenPath: String, replacementTokenPath: String?)
       case switchFiles
       case tabTapped(ComparisonTab)
-      case onAppear
-      case historyEntryTapped(ComparisonHistoryEntry)
-      case removeHistoryEntry(UUID)
-      case clearHistory
     }
   }
 

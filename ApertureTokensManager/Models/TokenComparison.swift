@@ -5,8 +5,10 @@ public struct ComparisonChanges: Equatable, Sendable {
   let removed: [TokenSummary] 
   let modified: [TokenModification]
   var replacementSuggestions: [ReplacementSuggestion] = []
+  var autoSuggestions: [AutoSuggestion] = []
   
-  // Helper methods
+  // MARK: - Manual Replacement Suggestions
+  
   mutating func addReplacementSuggestion(removedTokenPath: String, suggestedTokenPath: String) {
     // Remove existing suggestion for this token first
     replacementSuggestions.removeAll { $0.removedTokenPath == removedTokenPath }
@@ -24,6 +26,26 @@ public struct ComparisonChanges: Equatable, Sendable {
   func getSuggestion(for removedTokenPath: String) -> ReplacementSuggestion? {
     return replacementSuggestions.first { $0.removedTokenPath == removedTokenPath }
   }
+  
+  // MARK: - Auto Suggestions
+  
+  func getAutoSuggestion(for removedTokenPath: String) -> AutoSuggestion? {
+    return autoSuggestions.first { $0.removedTokenPath == removedTokenPath }
+  }
+  
+  /// Accepte une auto-suggestion en la convertissant en suggestion manuelle
+  mutating func acceptAutoSuggestion(for removedTokenPath: String) {
+    guard let auto = getAutoSuggestion(for: removedTokenPath) else { return }
+    addReplacementSuggestion(
+      removedTokenPath: removedTokenPath,
+      suggestedTokenPath: auto.suggestedTokenPath
+    )
+  }
+  
+  /// Rejette une auto-suggestion (la retire de la liste)
+  mutating func rejectAutoSuggestion(for removedTokenPath: String) {
+    autoSuggestions.removeAll { $0.removedTokenPath == removedTokenPath }
+  }
 }
 
 // Résumé léger d'un token (sans stocker le node complet)
@@ -40,11 +62,26 @@ public struct TokenSummary: Equatable, Sendable, Identifiable {
   }
 }
 
-// Structure pour représenter une suggestion de remplacement
+// Structure pour représenter une suggestion de remplacement manuelle
 public struct ReplacementSuggestion: Equatable, Sendable, Identifiable {
   public let id = UUID()
   let removedTokenPath: String
   let suggestedTokenPath: String
+}
+
+// Structure pour représenter une suggestion automatique avec score de confiance
+public struct AutoSuggestion: Equatable, Sendable, Identifiable {
+  public let id = UUID()
+  let removedTokenPath: String
+  let suggestedTokenPath: String
+  let confidence: Double  // 0.0 à 1.0
+  let matchFactors: MatchFactors
+  
+  struct MatchFactors: Equatable, Sendable {
+    let pathSimilarity: Double
+    let nameSimilarity: Double
+    let colorSimilarity: Double
+  }
 }
 
 // Structure pour représenter une modification de token (allégée)

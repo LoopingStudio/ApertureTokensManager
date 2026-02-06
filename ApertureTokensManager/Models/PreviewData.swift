@@ -178,11 +178,28 @@ enum PreviewData {
     )
   ]
   
-  static let comparisonChanges = ComparisonChanges(
-    added: addedTokens,
-    removed: removedTokens,
-    modified: modifiedTokens
-  )
+  static let autoSuggestions: [AutoSuggestion] = [
+    AutoSuggestion(
+      removedTokenPath: "colors/legacy/old-primary",
+      suggestedTokenPath: "colors/brand/accent",
+      confidence: 0.78,
+      matchFactors: AutoSuggestion.MatchFactors(
+        pathSimilarity: 0.60,       // Structure: 20%
+        nameSimilarity: 0.85,       // Contexte d'usage: 30%
+        colorSimilarity: 0.92       // Couleur: 50% (priorité max)
+      )
+    )
+  ]
+  
+  static let comparisonChanges: ComparisonChanges = {
+    var changes = ComparisonChanges(
+      added: addedTokens,
+      removed: removedTokens,
+      modified: modifiedTokens
+    )
+    changes.autoSuggestions = autoSuggestions
+    return changes
+  }()
   
   static let comparisonHistoryEntries: [ComparisonHistoryEntry] = [
     ComparisonHistoryEntry(

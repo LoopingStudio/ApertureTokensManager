@@ -235,6 +235,12 @@ struct CompareView: View {
         newVersionTokens: store.newFile.tokens,
         onSuggestReplacement: { removedPath, replacementPath in
           send(.suggestReplacement(removedTokenPath: removedPath, replacementTokenPath: replacementPath))
+        },
+        onAcceptAutoSuggestion: { removedPath in
+          send(.acceptAutoSuggestion(removedTokenPath: removedPath))
+        },
+        onRejectAutoSuggestion: { removedPath in
+          send(.rejectAutoSuggestion(removedTokenPath: removedPath))
         }
       )
 
@@ -317,6 +323,39 @@ struct CompareView: View {
       loadingError: nil,
       selectedChange: nil,
       selectedTab: .overview
+    )) {
+      CompareFeature()
+    }
+  )
+  .frame(width: 900, height: 600)
+}
+
+#Preview("Removed Tokens with Suggestions") {
+  CompareView(
+    store: Store(initialState: CompareFeature.State(
+      oldFile: CompareFeature.FileState(
+        tokens: PreviewData.rootNodes,
+        metadata: TokenMetadata(
+          exportedAt: "2026-02-04 10:00:00",
+          timestamp: 1738663200,
+          version: "2.0.0",
+          generator: "Figma"
+        ),
+        url: nil,
+        isLoaded: true,
+        isLoading: false
+      ),
+      newFile: CompareFeature.FileState(
+        tokens: PreviewData.rootNodes,
+        metadata: PreviewData.metadata,
+        url: nil,
+        isLoaded: true,
+        isLoading: false
+      ),
+      changes: PreviewData.comparisonChanges,
+      loadingError: nil,
+      selectedChange: nil,
+      selectedTab: .removed
     )) {
       CompareFeature()
     }

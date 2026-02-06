@@ -46,29 +46,41 @@ extension CompareFeature {
     case .comparisonCompleted(let changes):
       state.changes = changes
       
-      // Save comparison to history
-      guard let oldURL = state.oldFile.url, let newURL = state.newFile.url else {
-        return .none
-      }
+      // Capture les données nécessaires pour les effets
+      let removed = changes.removed
+      let added = changes.added
+      let oldURL = state.oldFile.url
+      let newURL = state.newFile.url
+      let oldMetadata = state.oldFile.metadata
+      let newMetadata = state.newFile.metadata
       
-      let entry = ComparisonHistoryEntry(
-        oldFile: FileSnapshot(
-          fileName: oldURL.lastPathComponent,
-          bookmarkData: oldURL.securityScopedBookmark(),
-          metadata: state.oldFile.metadata
-        ),
-        newFile: FileSnapshot(
-          fileName: newURL.lastPathComponent,
-          bookmarkData: newURL.securityScopedBookmark(),
-          metadata: state.newFile.metadata
-        ),
-        summary: ComparisonSummary(from: changes)
+      return .merge(
+        // Calculer les suggestions intelligentes
+        .run { send in
+          let suggestions = await suggestionClient.computeSuggestions(removed, added)
+          await send(.internal(.suggestionsComputed(suggestions)))
+        },
+        // Sauvegarder dans l'historique
+        .run { send in
+          guard let oldURL, let newURL else { return }
+          let entry = ComparisonHistoryEntry(
+            oldFile: FileSnapshot(
+              fileName: oldURL.lastPathComponent,
+              bookmarkData: oldURL.securityScopedBookmark(),
+              metadata: oldMetadata
+            ),
+            newFile: FileSnapshot(
+              fileName: newURL.lastPathComponent,
+              bookmarkData: newURL.securityScopedBookmark(),
+              metadata: newMetadata
+            ),
+            summary: ComparisonSummary(from: changes)
+          )
+          await historyClient.addComparisonEntry(entry)
+          let history = await historyClient.getComparisonHistory()
+          await send(.internal(.historyLoaded(history)))
+        }
       )
-      return .run { send in
-        await historyClient.addComparisonEntry(entry)
-        let history = await historyClient.getComparisonHistory()
-        await send(.internal(.historyLoaded(history)))
-      }
       
     case .historyLoaded(let history):
       state.comparisonHistory = history
@@ -80,6 +92,10 @@ extension CompareFeature {
       state.oldFile.isLoaded = true
       state.oldFile.isFromBase = true
       state.oldFile.url = nil
+      return .none
+      
+    case .suggestionsComputed(let suggestions):
+      state.changes?.autoSuggestions = suggestions
       return .none
     }
   }
