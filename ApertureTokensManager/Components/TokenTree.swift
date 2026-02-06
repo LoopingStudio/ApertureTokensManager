@@ -2,12 +2,13 @@ import SwiftUI
 
 // MARK: - Token Tree View
 
-/// Arbre de tokens unifié avec support clavier et hover effects
+/// Arbre de tokens unifié avec support clavier, hover effects et recherche
 struct TokenTree: View {
   let nodes: [TokenNode]
   let selectedNodeId: TokenNode.ID?
   let expandedNodes: Set<TokenNode.ID>
   let isEditable: Bool
+  let searchText: String
   let onSelect: (TokenNode) -> Void
   let onExpand: (TokenNode.ID) -> Void
   let onToggleEnabled: ((TokenNode.ID) -> Void)?
@@ -17,6 +18,7 @@ struct TokenTree: View {
     selectedNodeId: TokenNode.ID?,
     expandedNodes: Set<TokenNode.ID>,
     isEditable: Bool = false,
+    searchText: String = "",
     onSelect: @escaping (TokenNode) -> Void,
     onExpand: @escaping (TokenNode.ID) -> Void,
     onToggleEnabled: ((TokenNode.ID) -> Void)? = nil
@@ -25,21 +27,36 @@ struct TokenTree: View {
     self.selectedNodeId = selectedNodeId
     self.expandedNodes = expandedNodes
     self.isEditable = isEditable
+    self.searchText = searchText
     self.onSelect = onSelect
     self.onExpand = onExpand
     self.onToggleEnabled = onToggleEnabled
   }
   
+  /// Nodes filtrés et IDs des parents à expand automatiquement
+  private var filteredData: (nodes: [TokenNode], autoExpandedIds: Set<TokenNode.ID>) {
+    guard !searchText.isEmpty else {
+      return (nodes, [])
+    }
+    return TokenTreeSearchHelper.filterNodes(nodes, searchText: searchText)
+  }
+  
+  /// Combine expandedNodes manuels avec ceux auto-expand pour la recherche
+  private var effectiveExpandedNodes: Set<TokenNode.ID> {
+    expandedNodes.union(filteredData.autoExpandedIds)
+  }
+  
   var body: some View {
     ScrollView {
       LazyVStack(alignment: .leading, spacing: 0) {
-        ForEach(nodes, id: \.id) { node in
+        ForEach(filteredData.nodes, id: \.id) { node in
           TokenTreeBranch(
             node: node,
             depth: 0,
             selectedNodeId: selectedNodeId,
-            expandedNodes: expandedNodes,
+            expandedNodes: effectiveExpandedNodes,
             isEditable: isEditable,
+            searchText: searchText,
             onSelect: onSelect,
             onExpand: onExpand,
             onToggleEnabled: onToggleEnabled
@@ -59,6 +76,7 @@ private struct TokenTreeBranch: View {
   let selectedNodeId: TokenNode.ID?
   let expandedNodes: Set<TokenNode.ID>
   let isEditable: Bool
+  let searchText: String
   let onSelect: (TokenNode) -> Void
   let onExpand: (TokenNode.ID) -> Void
   let onToggleEnabled: ((TokenNode.ID) -> Void)?
@@ -75,6 +93,7 @@ private struct TokenTreeBranch: View {
         isSelected: isSelected,
         isExpanded: isExpanded,
         isEditable: isEditable,
+        searchText: searchText,
         onSelect: { onSelect(node) },
         onExpand: { onExpand(node.id) },
         onToggleEnabled: { onToggleEnabled?(node.id) }
@@ -88,6 +107,7 @@ private struct TokenTreeBranch: View {
             selectedNodeId: selectedNodeId,
             expandedNodes: expandedNodes,
             isEditable: isEditable,
+            searchText: searchText,
             onSelect: onSelect,
             onExpand: onExpand,
             onToggleEnabled: onToggleEnabled
@@ -106,6 +126,7 @@ struct TokenTreeRow: View {
   let isSelected: Bool
   let isExpanded: Bool
   let isEditable: Bool
+  let searchText: String
   let onSelect: () -> Void
   let onExpand: () -> Void
   let onToggleEnabled: () -> Void
@@ -132,10 +153,9 @@ struct TokenTreeRow: View {
       // Icon (folder or color)
       nodeIcon
       
-      // Name
-      Text(node.name)
+      // Name with search highlight
+      highlightedName
         .font(.system(.body, design: .default))
-        .foregroundStyle(nodeTextColor)
         .lineLimit(1)
       
       Spacer()
@@ -249,6 +269,14 @@ struct TokenTreeRow: View {
   
   // MARK: - Computed Properties
   
+  private var highlightedName: Text {
+    TokenTreeSearchHelper.highlightedText(
+      node.name,
+      searchText: searchText,
+      baseColor: nodeTextColor
+    )
+  }
+  
   private var nodeTextColor: Color {
     if isEditable && !node.isEnabled {
       return .secondary
@@ -353,6 +381,84 @@ extension View {
         return .ignored
       }
     }
+  }
+}
+
+// MARK: - Search Helper
+
+enum TokenTreeSearchHelper {
+  /// Filtre les nodes qui matchent le texte de recherche et retourne les IDs des parents à expand
+  static func filterNodes(
+    _ nodes: [TokenNode],
+    searchText: String
+  ) -> (nodes: [TokenNode], autoExpandedIds: Set<TokenNode.ID>) {
+    let lowercasedSearch = searchText.lowercased()
+    var autoExpandedIds: Set<TokenNode.ID> = []
+    
+    func nodeMatches(_ node: TokenNode) -> Bool {
+      node.name.lowercased().contains(lowercasedSearch)
+    }
+    
+    func hasMatchingDescendant(_ node: TokenNode) -> Bool {
+      if nodeMatches(node) { return true }
+      guard let children = node.children else { return false }
+      return children.contains { hasMatchingDescendant($0) }
+    }
+    
+    func filterRecursive(_ nodes: [TokenNode]) -> [TokenNode] {
+      nodes.compactMap { node -> TokenNode? in
+        // Si le node matche directement
+        if nodeMatches(node) {
+          return node
+        }
+        
+        // Si c'est un groupe, vérifier les enfants
+        if node.type == .group, let children = node.children {
+          let filteredChildren = filterRecursive(children)
+          if !filteredChildren.isEmpty {
+            // Auto-expand ce groupe car il contient des matches
+            autoExpandedIds.insert(node.id)
+            var updatedNode = node
+            updatedNode.children = filteredChildren
+            return updatedNode
+          }
+        }
+        
+        return nil
+      }
+    }
+    
+    let filteredNodes = filterRecursive(nodes)
+    return (filteredNodes, autoExpandedIds)
+  }
+  
+  /// Crée un Text avec le texte de recherche highlighté
+  static func highlightedText(
+    _ text: String,
+    searchText: String,
+    baseColor: Color
+  ) -> Text {
+    guard !searchText.isEmpty else {
+      return Text(text).foregroundStyle(baseColor)
+    }
+    
+    let lowercasedText = text.lowercased()
+    let lowercasedSearch = searchText.lowercased()
+    
+    guard let range = lowercasedText.range(of: lowercasedSearch) else {
+      return Text(text).foregroundStyle(baseColor)
+    }
+    
+    let startIndex = text.index(text.startIndex, offsetBy: lowercasedText.distance(from: lowercasedText.startIndex, to: range.lowerBound))
+    let endIndex = text.index(text.startIndex, offsetBy: lowercasedText.distance(from: lowercasedText.startIndex, to: range.upperBound))
+    
+    let before = String(text[..<startIndex])
+    let match = String(text[startIndex..<endIndex])
+    let after = String(text[endIndex...])
+    
+    return Text(before).foregroundStyle(baseColor) +
+           Text(match).foregroundStyle(.purple).bold() +
+           Text(after).foregroundStyle(baseColor)
   }
 }
 

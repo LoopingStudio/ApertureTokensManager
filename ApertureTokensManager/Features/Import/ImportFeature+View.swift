@@ -127,30 +127,54 @@ struct ImportView: View {
   }
 
   private var nodesView: some View {
-    TokenTree(
-      nodes: store.rootNodes,
-      selectedNodeId: store.selectedNode?.id,
-      expandedNodes: store.expandedNodes,
-      isEditable: true,
-      onSelect: { send(.selectNode($0)) },
-      onExpand: { nodeId in
-        if store.expandedNodes.contains(nodeId) {
-          send(.collapseNode(nodeId))
-        } else {
-          send(.expandNode(nodeId))
+    VStack(spacing: 0) {
+      // Search field
+      HStack(spacing: 8) {
+        Image(systemName: "magnifyingglass")
+          .foregroundStyle(.secondary)
+        TextField("Rechercher...", text: $store.searchText)
+          .textFieldStyle(.plain)
+        if !store.searchText.isEmpty {
+          Button {
+            store.searchText = ""
+          } label: {
+            Image(systemName: "xmark.circle.fill")
+              .foregroundStyle(.secondary)
+          }
+          .buttonStyle(.plain)
         }
-      },
-      onToggleEnabled: { send(.toggleNode($0)) }
-    )
-    .background(Color(nsColor: .controlBackgroundColor))
-    .tokenTreeKeyboardNavigation(
-      nodes: store.rootNodes,
-      expandedNodes: store.expandedNodes,
-      selectedNodeId: store.selectedNode?.id,
-      onSelect: { send(.selectNode($0)) },
-      onExpand: { send(.expandNode($0)) },
-      onCollapse: { send(.collapseNode($0)) }
-    )
+      }
+      .padding(8)
+      .background(Color(nsColor: .controlBackgroundColor))
+      
+      Divider()
+      
+      TokenTree(
+        nodes: store.rootNodes,
+        selectedNodeId: store.selectedNode?.id,
+        expandedNodes: store.expandedNodes,
+        isEditable: true,
+        searchText: store.searchText,
+        onSelect: { send(.selectNode($0)) },
+        onExpand: { nodeId in
+          if store.expandedNodes.contains(nodeId) {
+            send(.collapseNode(nodeId))
+          } else {
+            send(.expandNode(nodeId))
+          }
+        },
+        onToggleEnabled: { send(.toggleNode($0)) }
+      )
+      .background(Color(nsColor: .controlBackgroundColor))
+      .tokenTreeKeyboardNavigation(
+        nodes: store.rootNodes,
+        expandedNodes: store.expandedNodes,
+        selectedNodeId: store.selectedNode?.id,
+        onSelect: { send(.selectNode($0)) },
+        onExpand: { send(.expandNode($0)) },
+        onCollapse: { send(.collapseNode($0)) }
+      )
+    }
   }
 
   @ViewBuilder

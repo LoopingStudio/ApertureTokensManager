@@ -21,6 +21,7 @@ public struct ImportFeature: Sendable {
     var expandedNodes: Set<TokenNode.ID> = []
     var allNodes: [TokenNode] = []
     var currentFileURL: URL?
+    var searchText: String = ""
     
     // History
     var importHistory: [ImportHistoryEntry] = []

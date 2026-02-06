@@ -12,6 +12,7 @@ struct TokenBrowserFeature: Sendable {
     let metadata: TokenMetadata
     var selectedNode: TokenNode?
     var expandedNodes: Set<TokenNode.ID> = []
+    var searchText: String = ""
     
     var tokenCount: Int { TokenHelpers.countLeafTokens(tokens) }
 
@@ -23,7 +24,8 @@ struct TokenBrowserFeature: Sendable {
   // MARK: - Action
   
   @CasePathable
-  enum Action: ViewAction, Equatable, Sendable {
+  enum Action: BindableAction, ViewAction, Equatable, Sendable {
+    case binding(BindingAction<State>)
     case view(View)
     
     @CasePathable
@@ -38,8 +40,10 @@ struct TokenBrowserFeature: Sendable {
   // MARK: - Body
   
   var body: some ReducerOf<Self> {
+    BindingReducer()
     Reduce { state, action in
       switch action {
+      case .binding: .none
       case .view(let action): handleViewAction(action, state: &state)
       }
     }

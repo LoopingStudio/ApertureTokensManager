@@ -3,7 +3,7 @@ import ComposableArchitecture
 
 @ViewAction(for: TokenBrowserFeature.self)
 struct TokenBrowserView: View {
-  let store: StoreOf<TokenBrowserFeature>
+  @Bindable var store: StoreOf<TokenBrowserFeature>
   @Environment(\.dismiss) private var dismiss
   
   var body: some View {
@@ -66,23 +66,47 @@ struct TokenBrowserView: View {
   }
   
   private var tokenListView: some View {
-    TokenTree(
-      nodes: store.tokens,
-      selectedNodeId: store.selectedNode?.id,
-      expandedNodes: store.expandedNodes,
-      isEditable: false,
-      onSelect: { send(.selectNode($0)) },
-      onExpand: { send(.toggleNode($0)) }
-    )
-    .background(Color(nsColor: .controlBackgroundColor))
-    .tokenTreeKeyboardNavigation(
-      nodes: store.tokens,
-      expandedNodes: store.expandedNodes,
-      selectedNodeId: store.selectedNode?.id,
-      onSelect: { send(.selectNode($0)) },
-      onExpand: { send(.toggleNode($0)) },
-      onCollapse: { send(.toggleNode($0)) }
-    )
+    VStack(spacing: 0) {
+      // Search field
+      HStack(spacing: 8) {
+        Image(systemName: "magnifyingglass")
+          .foregroundStyle(.secondary)
+        TextField("Rechercher...", text: $store.searchText)
+          .textFieldStyle(.plain)
+        if !store.searchText.isEmpty {
+          Button {
+            store.searchText = ""
+          } label: {
+            Image(systemName: "xmark.circle.fill")
+              .foregroundStyle(.secondary)
+          }
+          .buttonStyle(.plain)
+        }
+      }
+      .padding(8)
+      .background(Color(nsColor: .controlBackgroundColor))
+      
+      Divider()
+      
+      TokenTree(
+        nodes: store.tokens,
+        selectedNodeId: store.selectedNode?.id,
+        expandedNodes: store.expandedNodes,
+        isEditable: false,
+        searchText: store.searchText,
+        onSelect: { send(.selectNode($0)) },
+        onExpand: { send(.toggleNode($0)) }
+      )
+      .background(Color(nsColor: .controlBackgroundColor))
+      .tokenTreeKeyboardNavigation(
+        nodes: store.tokens,
+        expandedNodes: store.expandedNodes,
+        selectedNodeId: store.selectedNode?.id,
+        onSelect: { send(.selectNode($0)) },
+        onExpand: { send(.toggleNode($0)) },
+        onCollapse: { send(.toggleNode($0)) }
+      )
+    }
   }
   
   @ViewBuilder
