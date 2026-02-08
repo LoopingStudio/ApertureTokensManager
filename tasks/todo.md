@@ -132,6 +132,21 @@
 
 ---
 
+### [2026-02-08] Feature: Système de Logging avec OSLog
+
+- [x] Créer `Logger.swift` - `AppLogger` enum avec loggers par catégorie (Import, Compare, Analysis, Export, etc.)
+- [x] Créer `LogEvent` struct pour événements structurés (userAction, systemEvent, error, performance)
+- [x] Créer `LoggingService` actor avec toute la logique de logging
+- [x] Créer `LoggingClient` TCA avec `liveValue`, `testValue`, `previewValue`
+- [x] Ajouter actions `Analytics` dans tous les reducers (Import, Compare, Analysis, Home)
+- [x] Créer fichiers `*+AnalyticsActions.swift` pour chaque feature
+- [x] Intégrer logging dans les services (File, Export, Comparison, Suggestion, Usage)
+- [x] Build et vérification
+
+**Résultat**: Système de logging complet avec OSLog, actions Analytics séparées dans chaque reducer (conformité TCA), et logging automatique dans tous les services.
+
+---
+
 ## En cours
 
 _Aucune tâche en cours_

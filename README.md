@@ -1,67 +1,92 @@
-# Aperture Tokens Importer
+# Aperture Tokens Manager
 
-Une application macOS pour importer, comparer et exporter des design tokens depuis Figma vers Xcode.
+Une application macOS pour importer, comparer, analyser et exporter des design tokens depuis Figma vers Xcode.
 
 ## 🎯 Vue d'ensemble
 
-Aperture Tokens Importer est l'application compagnon du plugin Figma **ApertureExporter**. Elle permet de créer une chaîne complète de design tokens depuis Figma jusqu'à votre projet iOS/macOS.
+Aperture Tokens Manager est l'application compagnon du plugin Figma **ApertureExporter**. Elle permet de créer une chaîne complète de design tokens depuis Figma jusqu'à votre projet iOS/macOS.
 
 ### Workflow complet
 1. **Figma** → Utiliser le plugin **ApertureExporter** pour exporter vos design tokens
 2. **Import** → Glisser-déposer ou sélectionner les fichiers JSON générés
 3. **Comparaison** → Comparer deux versions pour voir les changements
-4. **Export** → Générer les fichiers Xcode (Colors.xcassets + Swift extensions)
+4. **Analyse** → Scanner vos projets Swift pour détecter l'utilisation des tokens
+5. **Export** → Générer les fichiers Xcode (Colors.xcassets + Swift extensions)
 
 ## ✨ Fonctionnalités
+
+### 🏠 Accueil
+- **Statistiques** : Aperçu de votre base de design system (tokens, groupes)
+- **Actions rapides** : Accès direct aux fonctionnalités principales
+- **Historique unifié** : Timeline de vos imports et comparaisons récentes
+- **Filtres d'historique** : Tout / Imports / Comparaisons
 
 ### 📥 Import de Tokens
 - **Drag & Drop** : Glissez simplement vos fichiers JSON dans l'app
 - **Sélection de fichiers** : Interface native macOS pour choisir vos exports
 - **Métadonnées** : Affichage des informations d'export (date, version, générateur)
-- **Support multi-format** : Compatible avec les anciens et nouveaux formats d'export
+- **Recherche** : Filtrage en temps réel avec Cmd+F et auto-expansion des groupes
+- **Historique** : Accès rapide aux imports précédents
+- **Base de référence** : Définir un fichier comme "base" pour comparaisons
 
 ### 🔍 Comparaison de Versions
-- **Vue côte à côte** : Comparez facilement deux versions de vos tokens
+- **Vue par onglets** : Vue d'ensemble, Ajoutés, Supprimés, Modifiés
 - **Détection automatique** : Identifie les tokens ajoutés, supprimés et modifiés
-- **Visualisation des changements** : Interface claire pour voir les différences
-- **Changement de fichiers** : Possibilité d'inverser old/new si nécessaire
-- **Confirmation manuelle** : Lancez la comparaison quand vous êtes prêt
+- **Suggestions intelligentes** : Fuzzy matching pour suggérer des remplacements
+- **Score de confiance** : Couleur indicative (vert >70%, orange 50-70%, gris <50%)
+- **Export Notion** : Génération de Markdown pour documentation
+
+### 📊 Analyse d'Utilisation
+- **Scan de projets** : Analyser plusieurs dossiers Swift
+- **Tokens utilisés** : Liste avec occurrences (fichier, ligne, contexte)
+- **Tokens orphelins** : Tokens non utilisés groupés par catégorie
+- **Persistance** : Les dossiers scannés sont mémorisés entre les sessions
+- **Patterns détectés** : `.tokenName`, `Color.tokenName`, `.color(.tokenName)`
 
 ### 📤 Export vers Xcode
 - **Colors.xcassets** : Génération automatique des color sets Xcode
 - **Extensions Swift** : Création d'extensions Color avec vos tokens
 - **Structure hiérarchique** : Respect de l'organisation de vos tokens
-- **Support multi-thèmes** : Gestion des différentes variantes (legacy, newBrand)
+- **Support multi-thèmes** : Gestion des variantes (legacy, newBrand × light, dark)
 - **Filtrage intelligent** : Exportez uniquement les tokens activés
-
-### 📋 Export Notion
-- **Format Markdown** : Export des comparaisons dans un format lisible
-- **Tableaux organisés** : Vue claire des modifications pour documentation
-- **Métadonnées incluses** : Informations sur les versions comparées
-- **Prêt pour Notion** : Format optimisé pour être collé dans Notion
 
 ## 🚀 Installation
 
-1. Téléchargez la dernière version depuis les [Releases](../../releases)
-2. Glissez l'application dans votre dossier Applications
-3. Lancez l'application
+### Prérequis
+- macOS 26 ou supérieur
+- Xcode 17+ (pour le développement)
+
+### Depuis les sources
+```bash
+git clone https://github.com/your-org/ApertureTokensManager.git
+cd ApertureTokensManager
+open ApertureTokensManager.xcodeproj
+```
 
 ## 🔧 Utilisation
 
 ### Import simple
-1. Ouvrez l'onglet **"Token"**
+1. Ouvrez l'onglet **"Importer"**
 2. Glissez votre fichier JSON ou cliquez sur **"Sélectionner un fichier"**
-3. Explorez vos tokens dans l'arborescence
+3. Explorez vos tokens dans l'arborescence (recherche avec Cmd+F)
 4. Activez/désactivez les tokens à exporter
 5. Cliquez sur **"Exporter Design System"** pour générer les fichiers Xcode
 
 ### Comparaison de versions
-1. Ouvrez l'onglet **"Comparaison"**
+1. Ouvrez l'onglet **"Comparer"**
 2. Importez votre **ancienne version** (Old)
 3. Importez votre **nouvelle version** (New)
 4. Cliquez sur **"Confirmer la comparaison"**
-5. Explorez les changements détectés
-6. Optionnel : Exportez vers Notion pour documentation
+5. Explorez les changements détectés par onglet
+6. Consultez les suggestions de remplacement pour les tokens supprimés
+7. Optionnel : Exportez vers Notion pour documentation
+
+### Analyse d'utilisation
+1. Ouvrez l'onglet **"Analyser"**
+2. Ajoutez les dossiers de votre projet Swift à scanner
+3. Cliquez sur **"Lancer l'analyse"**
+4. Consultez les tokens utilisés avec leurs occurrences
+5. Identifiez les tokens orphelins à potentiellement supprimer
 
 ## 🔗 Intégration avec ApertureExporter
 
@@ -105,36 +130,75 @@ Cette application est conçue pour fonctionner avec le plugin Figma **ApertureEx
 
 ## 🛠 Architecture technique
 
-- **SwiftUI + TCA** : Interface moderne avec architecture The Composable Architecture
-- **Actor-based Services** : Gestion sécurisée des opérations asynchrones
-- **Separation of Concerns** : Services dédiés pour fichiers, export et comparaisons
-- **@Shared State** : Persistance des filtres avec le pattern Sharing de TCA
-- **macOS Native** : Intégration complète avec l'écosystème Apple
+### Stack
+- **SwiftUI + TCA** : Interface moderne avec The Composable Architecture
+- **OSLog** : Système de logging structuré par catégorie
+- **Actor-based Services** : Gestion thread-safe des opérations async
+- **@Shared State** : Persistance avec le pattern Sharing de TCA
+- **Swift Testing** : Suite de tests avec le nouveau framework
 
 ### Structure du projet
 ```
 ApertureTokensManager/
-├── App/                          # Point d'entrée de l'application
-├── Components/                   # Composants UI réutilisables (DropZone, ColorPreview...)
-├── Extensions/                   # Extensions utilitaires (Color+Hex, String+Date...)
-├── Features/                     # Features TCA (Token, Compare)
-│   ├── Token/
-│   │   ├── Actions/              # Actions séparées (View, Internal, Binding)
-│   │   ├── Views/                # Vues spécifiques (NodeRow, NodeTree, TokenDetail)
-│   │   ├── TokenFeature.swift    # Reducer principal
-│   │   └── TokenFeature+View.swift
-│   └── Compare/
-│       ├── Actions/
-│       ├── Views/
-│       ├── CompareFeature.swift
-│       └── CompareFeature+View.swift
-├── Helpers/                      # Utilitaires partagés (TokenHelpers)
-├── Models/                       # Modèles de données (TokenNode, TokenExport...)
+├── App/                          # Point d'entrée
+├── Components/                   # Composants UI réutilisables
+│   ├── ActionCard.swift          # Carte d'action avec Liquid Glass
+│   ├── DropZone.swift            # Zone de drag & drop
+│   ├── SearchField.swift         # Champ de recherche avec Cmd+F
+│   ├── TokenTree.swift           # Arborescence de tokens
+│   └── UnifiedHistoryView.swift  # Timeline d'historique
+├── Extensions/                   # Extensions Swift
+│   ├── Color+Hex.swift           # Conversion hex ↔ Color
+│   ├── SharedKeys.swift          # Clés @Shared pour persistance
+│   └── String+Date.swift         # Formatage de dates
+├── Features/                     # Features TCA
+│   ├── App/                      # Coordination des onglets
+│   ├── Home/                     # Accueil avec stats et historique
+│   ├── Import/                   # Import et export de tokens
+│   ├── Compare/                  # Comparaison de versions
+│   ├── Analysis/                 # Analyse d'utilisation
+│   └── TokenBrowser/             # Navigation dans les tokens
+├── Helpers/                      # Utilitaires
+│   ├── TokenHelpers.swift        # Manipulation de tokens
+│   ├── FuzzyMatchingHelpers.swift # Algorithmes de similarité
+│   └── TokenUsageHelpers.swift   # Détection d'usages Swift
+├── Models/                       # Modèles de données
+│   ├── TokenNode.swift           # Structure d'un token
+│   ├── TokenExport.swift         # Format d'export Figma
+│   ├── TokenComparison.swift     # Résultats de comparaison
+│   ├── UsageAnalysis.swift       # Rapport d'analyse
+│   └── HistoryEntry.swift        # Entrées d'historique
 └── Services/                     # Services métier
-    ├── ExportService/            # Export vers Xcode (XCAssets + Swift)
-    ├── ComparisonService/        # Comparaison de versions
-    ├── FileService/              # Gestion des fichiers
-    └── HistoryService/           # Historique des imports
+    ├── FileService/              # Lecture de fichiers JSON
+    ├── ExportService/            # Export XCAssets + Swift
+    ├── ComparisonService/        # Comparaison de tokens
+    ├── SuggestionService/        # Suggestions de remplacement
+    ├── UsageService/             # Analyse d'utilisation
+    ├── HistoryService/           # Gestion de l'historique
+    └── LoggingService/           # Logging OSLog centralisé
+```
+
+### Pattern TCA
+Chaque feature suit une structure cohérente :
+```
+Feature/
+├── FeatureName.swift              # State + Actions + Reducer
+├── FeatureName+View.swift         # Vue SwiftUI avec @ViewAction
+└── Actions/
+    ├── FeatureName+ViewActions.swift      # Actions utilisateur
+    ├── FeatureName+InternalActions.swift  # Résultats async
+    └── FeatureName+AnalyticsActions.swift # Logging séparé
+```
+
+### Hiérarchie des Actions
+```swift
+enum Action: BindableAction, ViewAction {
+  case binding(BindingAction<State>)
+  case analytics(Analytics)  // Logging séparé
+  case `internal`(Internal)  // Résultats async
+  case view(View)            // Actions utilisateur
+  case delegate(Delegate)    // Communication cross-feature
+}
 ```
 
 ### Filtres d'export
@@ -143,22 +207,32 @@ L'application supporte des filtres persistants pour l'export :
 - **Tokens finissant par _hover** : Exclut les états hover
 - **Groupe Utility** : Exclut le groupe utilitaire complet
 
-## 🎨 Captures d'écran
+## 🧪 Tests
 
-### Vue Token
-Interface d'import et d'exploration des tokens avec métadonnées.
+```bash
+# Lancer tous les tests
+xcodebuild test -scheme ApertureTokensManager
 
-### Vue Comparaison  
-Comparaison côte à côte de deux versions avec détection des changements.
+# Tests disponibles (81 tests)
+- FuzzyMatchingHelpersTests (24 tests)
+- TokenUsageHelpersTests (18 tests)
+- TokenHelpersTests (17 tests)
+- SuggestionServiceTests (9 tests)
+- ComparisonServiceTests (11 tests)
+```
 
-### Export Xcode
-Génération automatique des fichiers Colors.xcassets et extensions Swift.
+## 🎨 Design System
+
+L'application utilise **Liquid Glass** (macOS 26) :
+- `.buttonStyle(.glass(.regular.tint(.blue)))` pour les boutons
+- `.glassEffect()` pour les conteneurs
+- Design moderne et cohérent avec macOS
 
 ## 🤝 Contribution
 
 Les contributions sont les bienvenues ! N'hésitez pas à :
 - Ouvrir des issues pour signaler des bugs
-- Proposer des améliorations  
+- Proposer des améliorations
 - Soumettre des pull requests
 
 ## 📄 Licence
@@ -168,7 +242,8 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 ## 🔗 Liens utiles
 
 - [Plugin Figma ApertureExporter](# "Lien vers le plugin Figma")
-- [Documentation Figma Variables](https://help.figma.com/hc/en-us/articles/15339657135383-Guide-to-variables-in-Figma)
+- [Documentation TCA](https://github.com/pointfreeco/swift-composable-architecture)
+- [Figma Variables](https://help.figma.com/hc/en-us/articles/15339657135383-Guide-to-variables-in-Figma)
 - [Xcode Color Assets](https://developer.apple.com/documentation/xcode/customizing-the-appearance-of-your-app)
 
 ---

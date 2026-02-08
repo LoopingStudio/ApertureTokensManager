@@ -530,6 +530,111 @@ Remplacer les anciens styles par les nouveaux :
 
 ---
 
+## Logging avec OSLog
+
+### Architecture
+Le système de logging suit le pattern Client-Service standard :
+```
+LoggingClient (TCA @Dependency)
+    ↓
+LoggingService (actor)
+    ↓
+AppLogger (OSLog loggers par catégorie)
+```
+
+### AppLogger - Loggers par catégorie
+```swift
+enum AppLogger {
+  static let `import` = Logger(subsystem: subsystem, category: "Import")
+  static let compare = Logger(subsystem: subsystem, category: "Compare")
+  static let analysis = Logger(subsystem: subsystem, category: "Analysis")
+  static let export = Logger(subsystem: subsystem, category: "Export")
+  static let file = Logger(subsystem: subsystem, category: "File")
+  static let history = Logger(subsystem: subsystem, category: "History")
+  static let suggestion = Logger(subsystem: subsystem, category: "Suggestion")
+  static let usage = Logger(subsystem: subsystem, category: "Usage")
+  static let navigation = Logger(subsystem: subsystem, category: "Navigation")
+  static let app = Logger(subsystem: subsystem, category: "App")
+}
+```
+
+### LogEvent - Événements structurés
+```swift
+public struct LogEvent: Equatable, Sendable {
+  public let category: Category  // userAction, systemEvent, error, performance
+  public let action: String
+  public let label: String?
+  public let value: Int?
+  public let metadata: [String: String]
+  public let timestamp: Date
+}
+```
+
+### Actions Analytics dans les Reducers
+Chaque feature a un enum `Analytics` séparé des autres actions :
+```swift
+enum Action: BindableAction, ViewAction, Equatable, Sendable {
+  case binding(BindingAction<State>)
+  case analytics(Analytics)  // ← Actions de logging séparées
+  case `internal`(Internal)
+  case view(View)
+  case delegate(Delegate)
+}
+
+@CasePathable
+enum Analytics: Sendable, Equatable {
+  case screenViewed
+  case fileLoaded(fileName: String, tokenCount: Int)
+  case exportCompleted(tokenCount: Int)
+  case exportFailed(error: String)
+}
+```
+
+### Utilisation dans le Reducer
+```swift
+// Déclencher une action analytics depuis view/internal
+case .view(.selectFileTapped):
+  return .send(.analytics(.screenViewed))
+
+// Handler des analytics
+case let .analytics(action):
+  switch action {
+  case .screenViewed:
+    loggingClient.logUserAction(LogFeature.import, "screen_viewed", [:])
+  case let .fileLoaded(fileName, tokenCount):
+    loggingClient.logSystemEvent(LogFeature.import, "file_loaded", [
+      "fileName": fileName,
+      "tokenCount": "\(tokenCount)"
+    ])
+  }
+  return .none
+```
+
+### LoggingClient API
+```swift
+loggingClient.logUserAction(feature, action, metadata)   // 🎯 Actions utilisateur
+loggingClient.logSystemEvent(feature, event, metadata)   // ⚙️ Événements système
+loggingClient.logError(feature, message, error)          // ❌ Erreurs
+loggingClient.logPerformance(feature, operation, duration) // ⏱️ Performance
+loggingClient.logSuccess(feature, message, metadata)     // ✅ Succès
+loggingClient.logWarning(feature, message, metadata)     // ⚠️ Warnings
+loggingClient.logDebug(feature, message, metadata)       // 🔍 Debug
+```
+
+### Logging dans les Services
+Les services utilisent directement `AppLogger` :
+```swift
+actor FileService {
+  func loadTokenExport(from url: URL) async throws -> TokenExport {
+    AppLogger.file.systemEvent("Loading file", metadata: ["path": url.lastPathComponent])
+    // ...
+    AppLogger.file.success("File loaded", metadata: ["tokenCount": "\(count)"])
+  }
+}
+```
+
+---
+
 ## Notes pour le futur
 
 ### Localisation
