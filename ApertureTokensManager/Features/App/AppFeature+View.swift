@@ -28,6 +28,19 @@ struct AppView: View {
         .tag(AppFeature.Tab.importer)
     }
     .frame(minWidth: 800, minHeight: 600)
+    .toolbar {
+      ToolbarItem(placement: .primaryAction) {
+        Button {
+          store.send(.settingsButtonTapped)
+        } label: {
+          Image(systemName: "gear")
+        }
+        .help("Paramètres")
+      }
+    }
+    .sheet(item: $store.scope(state: \.settings, action: \.settings)) { settingsStore in
+      SettingsView(store: settingsStore)
+    }
   }
 }
 

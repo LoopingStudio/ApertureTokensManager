@@ -1,10 +1,90 @@
 import Foundation
 import OSLog
 
+// MARK: - Log Entry (for buffer)
+
+/// Entrée de log stockée dans le buffer
+public struct LogEntry: Equatable, Sendable, Identifiable {
+  public let id = UUID()
+  public let timestamp: Date
+  public let level: Level
+  public let feature: String
+  public let message: String
+  public let metadata: [String: String]
+  
+  public enum Level: String, Sendable {
+    case debug = "DEBUG"
+    case info = "INFO"
+    case success = "SUCCESS"
+    case warning = "WARNING"
+    case error = "ERROR"
+    
+    var emoji: String {
+      switch self {
+      case .debug: return "🔍"
+      case .info: return "ℹ️"
+      case .success: return "✅"
+      case .warning: return "⚠️"
+      case .error: return "❌"
+      }
+    }
+  }
+  
+  public var formattedLine: String {
+    let dateFormatter = ISO8601DateFormatter()
+    dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    let dateString = dateFormatter.string(from: timestamp)
+    let metadataString = metadata.isEmpty ? "" : " | \(metadata.map { "\($0.key)=\($0.value)" }.joined(separator: ", "))"
+    return "[\(dateString)] \(level.emoji) [\(level.rawValue)] [\(feature)] \(message)\(metadataString)"
+  }
+}
+
 // MARK: - Logging Service
 
 /// Service centralisé pour le logging avec OSLog
 actor LoggingService {
+  
+  // MARK: - Buffer
+  
+  private var logBuffer: [LogEntry] = []
+  private let maxBufferSize = 1000
+  
+  /// Ajoute une entrée au buffer
+  private func addToBuffer(_ entry: LogEntry) {
+    logBuffer.append(entry)
+    if logBuffer.count > maxBufferSize {
+      logBuffer.removeFirst(logBuffer.count - maxBufferSize)
+    }
+  }
+  
+  /// Récupère toutes les entrées du buffer
+  func getLogEntries() -> [LogEntry] {
+    return logBuffer
+  }
+  
+  /// Récupère le nombre d'entrées dans le buffer
+  func getLogCount() -> Int {
+    return logBuffer.count
+  }
+  
+  /// Vide le buffer
+  func clearBuffer() {
+    logBuffer.removeAll()
+  }
+  
+  /// Exporte les logs en texte formaté
+  func exportLogs() -> String {
+    let header = """
+    ================================================================================
+    Aperture Tokens Manager - Log Export
+    Date: \(ISO8601DateFormatter().string(from: Date()))
+    Entries: \(logBuffer.count)
+    ================================================================================
+    
+    """
+    let logs = logBuffer.map { $0.formattedLine }.joined(separator: "\n")
+    return header + logs
+  }
   
   // MARK: - Public API
   
@@ -32,6 +112,7 @@ actor LoggingService {
     let logger = loggerForFeature(feature)
     let metadataString = formatMetadata(metadata)
     logger.info("🎯 [USER] \(action)\(metadataString)")
+    addToBuffer(LogEntry(timestamp: Date(), level: .info, feature: feature, message: "[USER] \(action)", metadata: metadata))
   }
   
   /// Log un événement système
@@ -39,16 +120,20 @@ actor LoggingService {
     let logger = loggerForFeature(feature)
     let metadataString = formatMetadata(metadata)
     logger.info("⚙️ [SYSTEM] \(event)\(metadataString)")
+    addToBuffer(LogEntry(timestamp: Date(), level: .info, feature: feature, message: "[SYSTEM] \(event)", metadata: metadata))
   }
   
   /// Log une erreur
   func logError(feature: String, message: String, error: Error? = nil) {
     let logger = loggerForFeature(feature)
+    var meta: [String: String] = [:]
     if let error {
       logger.error("❌ [ERROR] \(message) | error=\(error.localizedDescription)")
+      meta["error"] = error.localizedDescription
     } else {
       logger.error("❌ [ERROR] \(message)")
     }
+    addToBuffer(LogEntry(timestamp: Date(), level: .error, feature: feature, message: message, metadata: meta))
   }
   
   /// Log une métrique de performance
@@ -56,6 +141,7 @@ actor LoggingService {
     let logger = loggerForFeature(feature)
     let durationMs = String(format: "%.2f", duration * 1000)
     logger.info("⏱️ [PERF] \(operation) completed in \(durationMs)ms")
+    addToBuffer(LogEntry(timestamp: Date(), level: .info, feature: feature, message: "[PERF] \(operation)", metadata: ["duration_ms": durationMs]))
   }
   
   /// Log un succès
@@ -63,6 +149,7 @@ actor LoggingService {
     let logger = loggerForFeature(feature)
     let metadataString = formatMetadata(metadata)
     logger.info("✅ [SUCCESS] \(message)\(metadataString)")
+    addToBuffer(LogEntry(timestamp: Date(), level: .success, feature: feature, message: message, metadata: metadata))
   }
   
   /// Log un warning
@@ -70,6 +157,7 @@ actor LoggingService {
     let logger = loggerForFeature(feature)
     let metadataString = formatMetadata(metadata)
     logger.warning("⚠️ [WARNING] \(message)\(metadataString)")
+    addToBuffer(LogEntry(timestamp: Date(), level: .warning, feature: feature, message: message, metadata: metadata))
   }
   
   /// Log un message debug
@@ -77,6 +165,7 @@ actor LoggingService {
     let logger = loggerForFeature(feature)
     let metadataString = formatMetadata(metadata)
     logger.debug("🔍 [DEBUG] \(message)\(metadataString)")
+    addToBuffer(LogEntry(timestamp: Date(), level: .debug, feature: feature, message: message, metadata: metadata))
   }
   
   // MARK: - Private Helpers

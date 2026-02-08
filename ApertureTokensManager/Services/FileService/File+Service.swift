@@ -94,6 +94,26 @@ actor FileService {
     return selectedURL
   }
   
+  @MainActor
+  func saveTextFile(content: String, defaultName: String, title: String, message: String? = nil) async throws -> URL? {
+    logger.debug("Opening save panel for text file: \(defaultName)")
+    let savePanel = NSSavePanel()
+    savePanel.title = title
+    savePanel.nameFieldStringValue = defaultName
+    savePanel.allowedContentTypes = [.plainText]
+    savePanel.canCreateDirectories = true
+    if let message { savePanel.message = message }
+    
+    guard savePanel.runModal() == .OK, let selectedURL = savePanel.url else {
+      logger.debug("Save panel cancelled")
+      return nil
+    }
+    
+    try content.write(to: selectedURL, atomically: true, encoding: .utf8)
+    logger.info("Text file saved: \(selectedURL.lastPathComponent)")
+    return selectedURL
+  }
+  
   // MARK: - Directory Operations
   @MainActor
   func pickDirectory(message: String = "Sélectionnez un dossier") throws -> URL? {

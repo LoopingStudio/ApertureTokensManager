@@ -13,6 +13,12 @@ struct LoggingClient {
   var logSuccess: @Sendable (String, String, [String: String]) -> Void
   var logWarning: @Sendable (String, String, [String: String]) -> Void
   var logDebug: @Sendable (String, String, [String: String]) -> Void
+  
+  // Buffer operations
+  var getLogEntries: @Sendable () async -> [LogEntry]
+  var getLogCount: @Sendable () async -> Int
+  var clearBuffer: @Sendable () async -> Void
+  var exportLogs: @Sendable () async -> String
 }
 
 // MARK: - Dependency Key
@@ -44,6 +50,18 @@ extension LoggingClient: DependencyKey {
       },
       logDebug: { feature, message, metadata in
         Task { await service.logDebug(feature: feature, message: message, metadata: metadata) }
+      },
+      getLogEntries: {
+        await service.getLogEntries()
+      },
+      getLogCount: {
+        await service.getLogCount()
+      },
+      clearBuffer: {
+        await service.clearBuffer()
+      },
+      exportLogs: {
+        await service.exportLogs()
       }
     )
   }()
@@ -56,7 +74,11 @@ extension LoggingClient: DependencyKey {
     logPerformance: { _, _, _ in },
     logSuccess: { _, _, _ in },
     logWarning: { _, _, _ in },
-    logDebug: { _, _, _ in }
+    logDebug: { _, _, _ in },
+    getLogEntries: { [] },
+    getLogCount: { 0 },
+    clearBuffer: { },
+    exportLogs: { "" }
   )
   
   static let previewValue: Self = testValue

@@ -18,6 +18,9 @@ struct AppFeature {
     var importer: ImportFeature.State = .initial
     var compare: CompareFeature.State = .initial
     var analysis: AnalysisFeature.State = .initial
+    
+    // Settings presentation
+    @Presents var settings: SettingsFeature.State?
   }
   
   enum Action {
@@ -26,6 +29,8 @@ struct AppFeature {
     case compare(CompareFeature.Action)
     case home(HomeFeature.Action)
     case importer(ImportFeature.Action)
+    case settings(PresentationAction<SettingsFeature.Action>)
+    case settingsButtonTapped
   }
   
   var body: some ReducerOf<Self> {
@@ -37,6 +42,12 @@ struct AppFeature {
       switch action {
       case .tabSelected(let tab):
         state.selectedTab = tab
+        return .none
+      // MARK: - Settings
+      case .settingsButtonTapped:
+        state.settings = .initial
+        return .none
+      case .settings:
         return .none
       // MARK: - Home Delegate Actions
       case .home(.delegate(.compareWithBase(let tokens, let metadata))):
@@ -66,6 +77,9 @@ struct AppFeature {
       case .compare:
         return .none
       }
+    }
+    .ifLet(\.$settings, action: \.settings) {
+      SettingsFeature()
     }
   }
 }
