@@ -1,8 +1,10 @@
 import Dependencies
 import Foundation
+import OSLog
 
 /// Service pour analyser l'utilisation des tokens dans les projets Swift
 actor UsageService {
+  private let logger = AppLogger.usage
   
   // MARK: - Public API
   
@@ -13,6 +15,8 @@ actor UsageService {
     config: UsageAnalysisConfig,
     tokenFilters: TokenFilters
   ) async throws -> TokenUsageReport {
+    logger.info("Starting usage analysis for \(directories.count) directories")
+    
     // Appliquer les filtres d'export aux tokens (comme pour l'export réel)
     let filteredTokens = filterTokensForExport(exportedTokens, filters: tokenFilters)
     
@@ -46,11 +50,14 @@ actor UsageService {
       usedTokens: Set(allUsages.keys)
     )
     
-    return TokenUsageReport(
+    let report = TokenUsageReport(
       scannedDirectories: scannedDirectories,
       usedTokens: usedTokens,
       orphanedTokens: orphanedTokens
     )
+    
+    logger.info("Analysis complete: \(usedTokens.count) used, \(orphanedTokens.count) orphaned, \(report.statistics.filesScanned) files scanned")
+    return report
   }
   
   // MARK: - Private Helpers

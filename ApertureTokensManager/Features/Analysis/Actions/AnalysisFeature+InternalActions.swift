@@ -8,12 +8,16 @@ extension AnalysisFeature {
       state.isAnalyzing = false
       state.report = report
       state.analysisError = nil
-      return .none
+      return .send(.analytics(.analysisCompleted(
+        usedCount: report.usedTokens.count,
+        orphanedCount: report.orphanedTokens.count,
+        filesScanned: report.statistics.filesScanned
+      )))
       
     case .analysisFailed(let error):
       state.isAnalyzing = false
       state.analysisError = error
-      return .none
+      return .send(.analytics(.analysisFailed(error: error)))
       
     case .directoryPicked(let url, let bookmarkData):
       let directory = ScanDirectory(
@@ -23,10 +27,16 @@ extension AnalysisFeature {
       )
       
       // Éviter les doublons
+      var wasAdded = false
       state.$directoriesToScan.withLock { directories in
         if !directories.contains(where: { $0.url == url }) {
           directories.append(directory)
+          wasAdded = true
         }
+      }
+      
+      if wasAdded {
+        return .send(.analytics(.directoryAdded(name: url.lastPathComponent)))
       }
       return .none
     }

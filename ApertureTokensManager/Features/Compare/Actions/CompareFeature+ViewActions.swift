@@ -5,14 +5,18 @@ extension CompareFeature {
   func handleViewAction(_ action: Action.View, state: inout State) -> EffectOf<Self> {
     switch action {
     case .acceptAutoSuggestion(let removedTokenPath):
+      let suggestedPath = state.changes?.getAutoSuggestion(for: removedTokenPath)?.suggestedTokenPath ?? ""
       state.changes?.acceptAutoSuggestion(for: removedTokenPath)
-      return .none
+      return .send(.analytics(.suggestionAccepted(removedPath: removedTokenPath, suggestedPath: suggestedPath)))
       
     case .clearHistory:
-      return .run { send in
-        await historyClient.clearComparisonHistory()
-        await send(.internal(.historyLoaded([])))
-      }
+      return .merge(
+        .send(.analytics(.historyCleared)),
+        .run { send in
+          await historyClient.clearComparisonHistory()
+          await send(.internal(.historyLoaded([])))
+        }
+      )
       
     case .compareButtonTapped:
       if state.oldFile.isLoaded && state.newFile.isLoaded {
@@ -22,11 +26,12 @@ extension CompareFeature {
       
     case .exportToNotionTapped:
       guard let changes = state.changes else { return .none }
-      return .run { [changes, oldMetadata = state.oldFile.metadata, newMetadata = state.newFile.metadata] _ in
+      return .run { [changes, oldMetadata = state.oldFile.metadata, newMetadata = state.newFile.metadata] send in
         guard let oldMetadata, let newMetadata else { return }
         try await comparisonClient.exportToNotion(changes, oldMetadata, newMetadata)
-      } catch: { error, _ in
-        print("Erreur export Notion: \(error)")
+        await send(.analytics(.exportToNotionCompleted))
+      } catch: { error, send in
+        await send(.analytics(.exportToNotionFailed(error: error.localizedDescription)))
       }
       
     case .fileDroppedWithProvider(let fileType, let provider):
@@ -44,17 +49,23 @@ extension CompareFeature {
       }
       
     case .historyEntryTapped(let entry):
-      return .send(.internal(.loadFromHistoryEntry(entry)))
+      return .merge(
+        .send(.analytics(.historyEntryTapped(oldFile: entry.oldFile.fileName, newFile: entry.newFile.fileName))),
+        .send(.internal(.loadFromHistoryEntry(entry)))
+      )
       
     case .onAppear:
-      return .run { send in
-        let history = await historyClient.getComparisonHistory()
-        await send(.internal(.historyLoaded(history)))
-      }
+      return .merge(
+        .send(.analytics(.screenViewed)),
+        .run { send in
+          let history = await historyClient.getComparisonHistory()
+          await send(.internal(.historyLoaded(history)))
+        }
+      )
       
     case .rejectAutoSuggestion(let removedTokenPath):
       state.changes?.rejectAutoSuggestion(for: removedTokenPath)
-      return .none
+      return .send(.analytics(.suggestionRejected(removedPath: removedTokenPath)))
       
     case .removeFile(let fileType):
       if fileType == .old {
@@ -117,7 +128,7 @@ extension CompareFeature {
       
     case .tabTapped(let tab):
       state.selectedTab = tab
-      return .none
+      return .send(.analytics(.tabChanged(tab: tab.rawValue)))
     }
   }
 }

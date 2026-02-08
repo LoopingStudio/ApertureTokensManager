@@ -28,13 +28,15 @@ extension CompareFeature {
         state.newFile = fileState
       }
       state.loadingError = nil
-      return .none
+      
+      let slotName = fileType == .old ? "old" : "new"
+      return .send(.analytics(.fileLoaded(slot: slotName, fileName: url.lastPathComponent)))
       
     case .loadingFailed(let errorMessage):
       state.oldFile.isLoading = false
       state.newFile.isLoading = false
       state.loadingError = errorMessage
-      return .none
+      return .send(.analytics(.fileLoadFailed(error: errorMessage)))
       
     case .performComparison:
       guard let oldTokens = state.oldFile.tokens, let newTokens = state.newFile.tokens else { return .none }
@@ -49,12 +51,19 @@ extension CompareFeature {
       // Capture les données nécessaires pour les effets
       let removed = changes.removed
       let added = changes.added
+      let modified = changes.modified
       let oldURL = state.oldFile.url
       let newURL = state.newFile.url
       let oldMetadata = state.oldFile.metadata
       let newMetadata = state.newFile.metadata
       
       return .merge(
+        // Log analytics
+        .send(.analytics(.comparisonCompleted(
+          added: added.count,
+          removed: removed.count,
+          modified: modified.count
+        ))),
         // Calculer les suggestions intelligentes
         .run { send in
           let suggestions = await suggestionClient.computeSuggestions(removed, added)

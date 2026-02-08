@@ -8,6 +8,7 @@ public struct ImportFeature: Sendable {
   @Dependency(\.exportClient) var exportClient
   @Dependency(\.fileClient) var fileClient
   @Dependency(\.historyClient) var historyClient
+  @Dependency(\.loggingClient) var loggingClient
 
   @ObservableState
   public struct State: Equatable {
@@ -50,10 +51,25 @@ public struct ImportFeature: Sendable {
 
   @CasePathable
   public enum Action: BindableAction, ViewAction, Equatable, Sendable {
+    case analytics(Analytics)
     case binding(BindingAction<State>)
+    case delegate(Delegate)
     case `internal`(Internal)
     case view(View)
-    case delegate(Delegate)
+    
+    @CasePathable
+    public enum Analytics: Sendable, Equatable {
+      case exportCompleted(tokenCount: Int)
+      case exportFailed(error: String)
+      case fileLoaded(fileName: String, tokenCount: Int)
+      case fileLoadFailed(error: String)
+      case historyCleared
+      case historyEntryRemoved
+      case historyEntryTapped(fileName: String)
+      case nodeToggled(path: String, enabled: Bool)
+      case screenViewed
+      case setAsBaseTapped(fileName: String)
+    }
     
     @CasePathable
     public enum Delegate: Sendable, Equatable {
@@ -75,20 +91,20 @@ public struct ImportFeature: Sendable {
 
     @CasePathable
     public enum View: Sendable, Equatable {
+      case clearHistory
+      case collapseNode(TokenNode.ID)
+      case expandNode(TokenNode.ID)
       case exportButtonTapped
       case fileDroppedWithProvider(NSItemProvider)
-      case selectFileTapped
-      case resetFile
-      case selectNode(TokenNode)
-      case toggleNode(TokenNode.ID)
-      case expandNode(TokenNode.ID)
-      case collapseNode(TokenNode.ID)
+      case historyEntryTapped(ImportHistoryEntry)
       case keyPressed(KeyEquivalent)
       case onAppear
-      case historyEntryTapped(ImportHistoryEntry)
       case removeHistoryEntry(UUID)
-      case clearHistory
+      case resetFile
+      case selectFileTapped
+      case selectNode(TokenNode)
       case setAsBaseButtonTapped
+      case toggleNode(TokenNode.ID)
     }
   }
 
@@ -96,10 +112,11 @@ public struct ImportFeature: Sendable {
     BindingReducer()
     Reduce { state, action in
       switch action {
+      case .analytics(let action): handleAnalyticsAction(action, state: &state)
       case .binding(let action): handleBindingAction(action, state: &state)
+      case .delegate: .none
       case .internal(let action): handleInternalAction(action, state: &state)
       case .view(let action): handleViewAction(action, state: &state)
-      case .delegate: .none
       }
     }
   }

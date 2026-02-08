@@ -7,15 +7,22 @@ extension HomeFeature {
     switch action {
     case .clearBaseButtonTapped:
       state.$designSystemBase.withLock { $0 = nil }
-      return .none
+      return .send(.analytics(.baseCleared))
     case .compareWithBaseButtonTapped:
       guard let base = state.designSystemBase else { return .none }
-      return .send(.delegate(.compareWithBase(tokens: base.tokens, metadata: base.metadata)))
+      return .merge(
+        .send(.analytics(.compareWithBaseTapped)),
+        .send(.delegate(.compareWithBase(tokens: base.tokens, metadata: base.metadata)))
+      )
     case .confirmExportButtonTapped:
       guard let base = state.designSystemBase else { return .none }
       state.isExportPopoverPresented = false
-      return .run { _ in
-        try await exportClient.exportDesignSystem(base.tokens)
+      let tokenCount = TokenHelpers.countLeafTokens(base.tokens)
+      return .run { [tokens = base.tokens] send in
+        try await exportClient.exportDesignSystem(tokens)
+        await send(.analytics(.exportCompleted(tokenCount: tokenCount)))
+      } catch: { error, send in
+        await send(.analytics(.exportFailed(error: error.localizedDescription)))
       }
     case .dismissExportPopover:
       state.isExportPopoverPresented = false
@@ -27,23 +34,32 @@ extension HomeFeature {
       return .send(.delegate(.goToImport))
     case .historyFilterChanged(let filter):
       state.historyFilter = filter
-      return .none
+      return .send(.analytics(.historyFilterChanged(filter: filter.rawValue)))
     case .historyItemTapped(let item):
       switch item {
       case .imported(let entry):
-        return .send(.delegate(.openImportHistory(entry)))
+        return .merge(
+          .send(.analytics(.historyItemTapped(type: "import", fileName: entry.fileName))),
+          .send(.delegate(.openImportHistory(entry)))
+        )
       case .comparison(let entry):
-        return .send(.delegate(.openComparisonHistory(entry)))
+        return .merge(
+          .send(.analytics(.historyItemTapped(type: "comparison", fileName: entry.oldFile.fileName))),
+          .send(.delegate(.openComparisonHistory(entry)))
+        )
       }
     case .openFileButtonTapped:
       guard let base = state.designSystemBase, let url = base.resolveURL() else { return .none }
-      return .run { _ in
-        await fileClient.openInFinder(url)
-      }
+      return .merge(
+        .send(.analytics(.openFileTapped)),
+        .run { _ in
+          await fileClient.openInFinder(url)
+        }
+      )
     case .tokenCountTapped:
       guard let base = state.designSystemBase else { return .none }
       state.tokenBrowser = .initial(tokens: base.tokens, metadata: base.metadata)
-      return .none
+      return .send(.analytics(.tokenBrowserOpened))
     }
   }
 }

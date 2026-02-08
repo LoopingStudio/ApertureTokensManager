@@ -1,11 +1,14 @@
 import AppKit
 import Foundation
+import OSLog
 import UniformTypeIdentifiers
 
 actor FileService {
+  private let logger = AppLogger.file
   // MARK: - File Picking
   @MainActor  
   func pickFile() async throws -> URL? {
+    logger.debug("Opening file picker panel")
     let openPanel = NSOpenPanel()
     openPanel.allowedContentTypes = [.json]
     openPanel.allowsMultipleSelection = false
@@ -13,9 +16,11 @@ actor FileService {
     openPanel.canChooseFiles = true
     openPanel.message = "Sélectionnez votre fichier de tokens JSON"
 
-    guard openPanel.runModal() == .OK, let selectedURL = openPanel.url else { 
+    guard openPanel.runModal() == .OK, let selectedURL = openPanel.url else {
+      logger.debug("File picker cancelled")
       return nil 
     }
+    logger.info("File selected: \(selectedURL.lastPathComponent)")
     return selectedURL
   }
   
@@ -50,12 +55,17 @@ actor FileService {
   }
   
   func loadTokenExport(from url: URL) throws -> TokenExport {
+    logger.debug("Loading token export from: \(url.lastPathComponent)")
     let data = try Data(contentsOf: url)
     
     // Try to decode the new format first (with metadata wrapper)
     do {
-      return try JSONDecoder().decode(TokenExport.self, from: data)
+      let export = try JSONDecoder().decode(TokenExport.self, from: data)
+      let tokenCount = TokenHelpers.countLeafTokens(export.tokens)
+      logger.info("Loaded token export: \(tokenCount) tokens, version: \(export.metadata.version)")
+      return export
     } catch {
+      logger.debug("New format failed, trying legacy format")
       // Fallback to old format (direct array) - create default metadata
       let tokens = try JSONDecoder().decode([TokenNode].self, from: data)
       let defaultMetadata = TokenMetadata(
@@ -64,6 +74,7 @@ actor FileService {
         version: "Inconnue",
         generator: "Fichier legacy"
       )
+      logger.info("Loaded legacy token export: \(tokens.count) root nodes")
       return TokenExport(metadata: defaultMetadata, tokens: tokens)
     }
   }

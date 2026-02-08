@@ -8,6 +8,7 @@ public struct CompareFeature: Sendable {
   @Dependency(\.exportClient) var exportClient
   @Dependency(\.fileClient) var fileClient
   @Dependency(\.historyClient) var historyClient
+  @Dependency(\.loggingClient) var loggingClient
   @Dependency(\.suggestionClient) var suggestionClient
 
   // MARK: - File State
@@ -80,9 +81,25 @@ public struct CompareFeature: Sendable {
   
   @CasePathable
   public enum Action: BindableAction, ViewAction, Equatable, Sendable {
+    case analytics(Analytics)
     case binding(BindingAction<State>)
     case `internal`(Internal)
     case view(View)
+
+    @CasePathable
+    public enum Analytics: Sendable, Equatable {
+      case comparisonCompleted(added: Int, removed: Int, modified: Int)
+      case exportToNotionCompleted
+      case exportToNotionFailed(error: String)
+      case fileLoaded(slot: String, fileName: String)
+      case fileLoadFailed(error: String)
+      case historyCleared
+      case historyEntryTapped(oldFile: String, newFile: String)
+      case screenViewed
+      case suggestionAccepted(removedPath: String, suggestedPath: String)
+      case suggestionRejected(removedPath: String)
+      case tabChanged(tab: String)
+    }
 
     @CasePathable
     public enum Internal: Sendable, Equatable {
@@ -124,6 +141,7 @@ public struct CompareFeature: Sendable {
     BindingReducer()
     Reduce { state, action in
       switch action {
+      case .analytics(let action): handleAnalyticsAction(action, state: &state)
       case .binding: .none
       case .internal(let action): handleInternalAction(action, state: &state)
       case .view(let action): handleViewAction(action, state: &state)

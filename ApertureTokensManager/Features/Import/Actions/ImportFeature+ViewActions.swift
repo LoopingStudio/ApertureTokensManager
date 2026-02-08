@@ -19,27 +19,40 @@ extension ImportFeature {
       state = .initial
       state.importHistory = history
       return .none
+      
     case .onAppear:
-      return .run { send in
-        let history = await historyClient.getImportHistory()
-        await send(.internal(.historyLoaded(history)))
-      }
+      return .merge(
+        .send(.analytics(.screenViewed)),
+        .run { send in
+          let history = await historyClient.getImportHistory()
+          await send(.internal(.historyLoaded(history)))
+        }
+      )
       
     case .historyEntryTapped(let entry):
-      return .send(.internal(.loadFromHistoryEntry(entry)))
+      return .merge(
+        .send(.analytics(.historyEntryTapped(fileName: entry.fileName))),
+        .send(.internal(.loadFromHistoryEntry(entry)))
+      )
       
     case .removeHistoryEntry(let id):
-      return .run { send in
-        await historyClient.removeImportEntry(id)
-        let history = await historyClient.getImportHistory()
-        await send(.internal(.historyLoaded(history)))
-      }
+      return .merge(
+        .send(.analytics(.historyEntryRemoved)),
+        .run { send in
+          await historyClient.removeImportEntry(id)
+          let history = await historyClient.getImportHistory()
+          await send(.internal(.historyLoaded(history)))
+        }
+      )
       
     case .clearHistory:
-      return .run { send in
-        await historyClient.clearImportHistory()
-        await send(.internal(.historyLoaded([])))
-      }
+      return .merge(
+        .send(.analytics(.historyCleared)),
+        .run { send in
+          await historyClient.clearImportHistory()
+          await send(.internal(.historyLoaded([])))
+        }
+      )
       
     case .setAsBaseButtonTapped:
       guard let metadata = state.metadata else { return .none }
@@ -53,13 +66,20 @@ extension ImportFeature {
           tokens: state.rootNodes
         )
       }
-      return .send(.delegate(.baseUpdated))
+      return .merge(
+        .send(.analytics(.setAsBaseTapped(fileName: fileName))),
+        .send(.delegate(.baseUpdated))
+      )
       
     case .toggleNode(let id):
       updateNodeRecursively(nodes: &state.rootNodes, targetId: id)
       // Mettre à jour selectedNode si c'est le node toggleé ou un de ses descendants
       if let selectedNode = state.selectedNode {
         state.selectedNode = findNode(by: selectedNode.id, in: state.rootNodes)
+      }
+      // Log le toggle avec le path du node
+      if let node = findNode(by: id, in: state.rootNodes) {
+        return .send(.analytics(.nodeToggled(path: node.path ?? node.name, enabled: node.isEnabled)))
       }
       return .none
     case .selectNode(let node):
@@ -81,10 +101,12 @@ extension ImportFeature {
         await send(.internal(.loadFile(url)))
       }
     case .exportButtonTapped:
-      return .run { [nodesToSave = state.rootNodes] _ in
+      let tokenCount = TokenHelpers.countLeafTokens(state.rootNodes)
+      return .run { [nodesToSave = state.rootNodes] send in
         try await exportClient.exportDesignSystem(nodesToSave)
-      } catch: { error, _ in
-        print("Erreur export: \(error)")
+        await send(.analytics(.exportCompleted(tokenCount: tokenCount)))
+      } catch: { error, send in
+        await send(.analytics(.exportFailed(error: error.localizedDescription)))
       }
     case .keyPressed(let key):
       switch key {

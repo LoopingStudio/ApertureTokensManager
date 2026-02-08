@@ -6,6 +6,7 @@ import Foundation
 struct HomeFeature: Sendable {
   @Dependency(\.exportClient) var exportClient
   @Dependency(\.fileClient) var fileClient
+  @Dependency(\.loggingClient) var loggingClient
 
   // MARK: - State
 
@@ -48,11 +49,24 @@ struct HomeFeature: Sendable {
   
   @CasePathable
   enum Action: BindableAction, ViewAction, Equatable, Sendable {
+    case analytics(Analytics)
     case binding(BindingAction<State>)
     case delegate(Delegate)
     case `internal`(Internal)
     case tokenBrowser(PresentationAction<TokenBrowserFeature.Action>)
     case view(View)
+
+    @CasePathable
+    enum Analytics: Equatable, Sendable {
+      case baseCleared
+      case compareWithBaseTapped
+      case exportCompleted(tokenCount: Int)
+      case exportFailed(error: String)
+      case historyFilterChanged(filter: String)
+      case historyItemTapped(type: String, fileName: String)
+      case openFileTapped
+      case tokenBrowserOpened
+    }
 
     @CasePathable
     enum Delegate: Equatable, Sendable {
@@ -87,6 +101,7 @@ struct HomeFeature: Sendable {
     BindingReducer()
     Reduce { state, action in
       switch action {
+      case .analytics(let action): handleAnalyticsAction(action, state: &state)
       case .binding: .none
       case .delegate: .none
       case .internal: .none

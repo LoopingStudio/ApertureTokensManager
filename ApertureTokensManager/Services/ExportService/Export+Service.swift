@@ -1,10 +1,12 @@
 import AppKit
 import Dependencies
 import Foundation
+import OSLog
 import UniformTypeIdentifiers
 
 actor ExportService {
   @Dependency(\.fileClient) var fileClient
+  private let logger = AppLogger.export
 
   // MARK: - Constants
   private enum ExportFiles {
@@ -14,9 +16,15 @@ actor ExportService {
 
   @MainActor
   func exportDesignSystem(nodes: [TokenNode]) async throws {
+    logger.info("Starting design system export")
     let filtered = await filterEnabledNodes(nodes)
+    let tokenCount = await collectAllTokens(from: filtered).count
+    logger.debug("Filtered tokens: \(tokenCount)")
 
-    guard let destinationURL = try await fileClient.pickDirectory("Choisissez où créer le design system") else { return }
+    guard let destinationURL = try await fileClient.pickDirectory("Choisissez où créer le design system") else {
+      logger.debug("Export cancelled - no directory selected")
+      return
+    }
 
     // Demander l'accès sécurisé au dossier
     let canAccess = destinationURL.startAccessingSecurityScopedResource()
@@ -54,6 +62,8 @@ actor ExportService {
       // Nettoyer le temporaire
       try? FileManager.default.removeItem(at: tempURL)
       
+      logger.info("Export completed successfully to: \(exportDestURL.path)")
+      
       // Afficher une notification de succès
       let alert = NSAlert()
       alert.messageText = "Export réussi"
@@ -62,6 +72,7 @@ actor ExportService {
       alert.runModal()
       
     } catch {
+      logger.error("Export failed: \(error.localizedDescription)")
       let alert = NSAlert()
       alert.messageText = "Erreur d'export"
       alert.informativeText = "Impossible de créer le design system:\n\(error.localizedDescription)"

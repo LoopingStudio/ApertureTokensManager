@@ -6,6 +6,7 @@ import SwiftUI
 @Reducer
 public struct AnalysisFeature: Sendable {
   @Dependency(\.fileClient) var fileClient
+  @Dependency(\.loggingClient) var loggingClient
   @Dependency(\.usageClient) var usageClient
 
   // MARK: - State
@@ -60,9 +61,22 @@ public struct AnalysisFeature: Sendable {
   
   @CasePathable
   public enum Action: BindableAction, ViewAction, Equatable, Sendable {
+    case analytics(Analytics)
     case binding(BindingAction<State>)
     case `internal`(Internal)
     case view(View)
+
+    @CasePathable
+    public enum Analytics: Sendable, Equatable {
+      case analysisCompleted(usedCount: Int, orphanedCount: Int, filesScanned: Int)
+      case analysisFailed(error: String)
+      case analysisStarted(directoryCount: Int, tokenCount: Int)
+      case directoryAdded(name: String)
+      case directoryRemoved
+      case resultsCleared
+      case screenViewed
+      case tabChanged(tab: String)
+    }
 
     @CasePathable
     public enum Internal: Sendable, Equatable {
@@ -90,6 +104,7 @@ public struct AnalysisFeature: Sendable {
     BindingReducer()
     Reduce { state, action in
       switch action {
+      case .analytics(let action): handleAnalyticsAction(action, state: &state)
       case .binding: .none
       case .internal(let action): handleInternalAction(action, state: &state)
       case .view(let action): handleViewAction(action, state: &state)

@@ -14,7 +14,7 @@ extension ImportFeature {
       state.isLoading = false
       state.loadingError = true
       state.errorMessage = message
-      return .none
+      return .send(.analytics(.fileLoadFailed(error: message)))
     case .loadFile(let url):
       return .run { send in
         do {
@@ -43,16 +43,18 @@ extension ImportFeature {
       
       // Count leaf tokens (nodes with values)
       let tokenCount = TokenHelpers.countLeafTokens(tokenExport.tokens)
+      let fileName = url.lastPathComponent
       
       // Save to history
       let entry = ImportHistoryEntry(
-        fileName: url.lastPathComponent,
+        fileName: fileName,
         bookmarkData: url.securityScopedBookmark(),
         metadata: tokenExport.metadata,
         tokenCount: tokenCount
       )
       
       return .merge(
+        .send(.analytics(.fileLoaded(fileName: fileName, tokenCount: tokenCount))),
         .send(.internal(.observeFilters)),
         .run { send in
           await historyClient.addImportEntry(entry)

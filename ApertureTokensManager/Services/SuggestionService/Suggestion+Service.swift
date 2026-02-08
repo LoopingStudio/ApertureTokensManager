@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 
 /// Configuration pour le fuzzy matching
 /// Hiérarchie des priorités :
@@ -22,6 +23,7 @@ struct SuggestionMatchingConfig: Equatable, Sendable {
 /// Service pour calculer les suggestions de remplacement intelligentes
 actor SuggestionService {
   private let config: SuggestionMatchingConfig
+  private let logger = AppLogger.suggestion
   
   init(config: SuggestionMatchingConfig = .default) {
     self.config = config
@@ -32,6 +34,7 @@ actor SuggestionService {
     removedTokens: [TokenSummary],
     addedTokens: [TokenSummary]
   ) -> [AutoSuggestion] {
+    logger.debug("Computing suggestions for \(removedTokens.count) removed tokens against \(addedTokens.count) added tokens")
     var suggestions: [AutoSuggestion] = []
     
     for removed in removedTokens {
@@ -40,6 +43,7 @@ actor SuggestionService {
       }
     }
     
+    logger.info("Found \(suggestions.count) suggestions with confidence >= \(self.config.minimumConfidenceThreshold)")
     return suggestions
   }
   

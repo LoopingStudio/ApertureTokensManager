@@ -1,12 +1,15 @@
 import Foundation
 import AppKit
+import OSLog
 import UniformTypeIdentifiers
 import Dependencies
 
 actor ComparisonService {
   @Dependency(\.fileClient) var fileClient
+  private let logger = AppLogger.compare
   
   func compareTokens(oldTokens: [TokenNode], newTokens: [TokenNode]) async -> ComparisonChanges {
+    logger.debug("Starting token comparison")
     let oldFlat = TokenHelpers.flattenTokens(oldTokens)
     let newFlat = TokenHelpers.flattenTokens(newTokens)
     
@@ -25,6 +28,7 @@ actor ComparisonService {
       modified: modified
     )
     
+    logger.info("Comparison completed: \(added.count) added, \(removed.count) removed, \(modified.count) modified")
     return changes
   }
   
@@ -130,6 +134,7 @@ actor ComparisonService {
     oldMetadata: TokenMetadata,
     newMetadata: TokenMetadata
   ) async throws {
+    logger.info("Exporting comparison to Notion markdown")
     let markdownContent = await createNotionMarkdown(
       changes: changes,
       oldMetadata: oldMetadata,
