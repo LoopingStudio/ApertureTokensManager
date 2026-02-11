@@ -23,6 +23,7 @@ public struct ImportFeature: Sendable {
     var allNodes: [TokenNode] = []
     var currentFileURL: URL?
     var searchText: String = ""
+    var showSetAsBaseConfirmation: Bool = false
     
     // History
     var importHistory: [ImportHistoryEntry] = []
@@ -103,6 +104,8 @@ public struct ImportFeature: Sendable {
       case resetFile
       case selectFileTapped
       case selectNode(TokenNode)
+      case confirmSetAsBase
+      case dismissSetAsBaseConfirmation
       case setAsBaseButtonTapped
       case toggleNode(TokenNode.ID)
     }

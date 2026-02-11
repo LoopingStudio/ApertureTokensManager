@@ -55,21 +55,21 @@ extension ImportFeature {
       )
       
     case .setAsBaseButtonTapped:
-      guard let metadata = state.metadata else { return .none }
-      let fileName = state.currentFileURL?.lastPathComponent ?? "Unknown"
-      let bookmarkData = state.currentFileURL?.securityScopedBookmark()
-      state.$designSystemBase.withLock {
-        $0 = DesignSystemBase(
-          fileName: fileName,
-          bookmarkData: bookmarkData,
-          metadata: metadata,
-          tokens: state.rootNodes
-        )
+      // Si une base existe déjà, demander confirmation
+      if state.designSystemBase != nil {
+        state.showSetAsBaseConfirmation = true
+        return .none
       }
-      return .merge(
-        .send(.analytics(.setAsBaseTapped(fileName: fileName))),
-        .send(.delegate(.baseUpdated))
-      )
+      // Sinon, définir directement
+      return setAsBase(state: &state)
+      
+    case .confirmSetAsBase:
+      state.showSetAsBaseConfirmation = false
+      return setAsBase(state: &state)
+      
+    case .dismissSetAsBaseConfirmation:
+      state.showSetAsBaseConfirmation = false
+      return .none
       
     case .toggleNode(let id):
       updateNodeRecursively(nodes: &state.rootNodes, targetId: id)
@@ -222,5 +222,24 @@ extension ImportFeature {
       }
     }
     return nil
+  }
+  
+  // Helper pour définir la base
+  private func setAsBase(state: inout State) -> Effect<Action> {
+    guard let metadata = state.metadata else { return .none }
+    let fileName = state.currentFileURL?.lastPathComponent ?? "Unknown"
+    let bookmarkData = state.currentFileURL?.securityScopedBookmark()
+    state.$designSystemBase.withLock {
+      $0 = DesignSystemBase(
+        fileName: fileName,
+        bookmarkData: bookmarkData,
+        metadata: metadata,
+        tokens: state.rootNodes
+      )
+    }
+    return .merge(
+      .send(.analytics(.setAsBaseTapped(fileName: fileName))),
+      .send(.delegate(.baseUpdated))
+    )
   }
 }

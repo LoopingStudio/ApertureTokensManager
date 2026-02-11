@@ -4,10 +4,10 @@ Une application macOS pour importer, comparer, analyser et exporter des design t
 
 ## 🎯 Vue d'ensemble
 
-Aperture Tokens Manager est l'application compagnon du plugin Figma **ApertureExporter**. Elle permet de créer une chaîne complète de design tokens depuis Figma jusqu'à votre projet iOS/macOS.
+Aperture Tokens Manager est l'application compagnon du plugin Figma **[Multibrand Token Exporter](https://www.figma.com/community/plugin/1601261816129528282/multibrand-token-exporter)**. Elle permet de créer une chaîne complète de design tokens depuis Figma jusqu'à votre projet iOS/macOS.
 
 ### Workflow complet
-1. **Figma** → Utiliser le plugin **ApertureExporter** pour exporter vos design tokens
+1. **Figma** → Utiliser le plugin **Multibrand Token Exporter** pour exporter vos design tokens
 2. **Import** → Glisser-déposer ou sélectionner les fichiers JSON générés
 3. **Comparaison** → Comparer deux versions pour voir les changements
 4. **Analyse** → Scanner vos projets Swift pour détecter l'utilisation des tokens
@@ -59,7 +59,13 @@ Aperture Tokens Manager est l'application compagnon du plugin Figma **ApertureEx
 - **Historique** : Limiter le nombre d'entrées conservées (5-50)
 - **Données** : Accès au dossier de stockage, reset complet
 - **Logs** : Journal d'activité consultable et exportable
-- **À propos** : Informations sur l'application
+- **À propos** : Informations sur l'application et accès au tutoriel
+
+### 📖 Tutoriel intégré
+- **Guide de démarrage** : Tutoriel interactif en 5 étapes au premier lancement
+- **Animations fluides** : Transitions élégantes entre les étapes
+- **Lien plugin Figma** : Accès direct à Multibrand Token Exporter
+- **Réaccessible** : Bouton "?" dans la toolbar ou via Paramètres
 
 ## 🚀 Installation
 
@@ -99,9 +105,9 @@ open ApertureTokensManager.xcodeproj
 4. Consultez les tokens utilisés avec leurs occurrences
 5. Identifiez les tokens orphelins à potentiellement supprimer
 
-## 🔗 Intégration avec ApertureExporter
+## 🔗 Intégration avec Multibrand Token Exporter
 
-Cette application est conçue pour fonctionner avec le plugin Figma **ApertureExporter** qui :
+Cette application est conçue pour fonctionner avec le plugin Figma **[Multibrand Token Exporter](https://www.figma.com/community/plugin/1601261816129528282/multibrand-token-exporter)** qui :
 
 - Extrait automatiquement tous vos design tokens depuis Figma
 - Génère des fichiers JSON structurés avec métadonnées
@@ -115,7 +121,7 @@ Cette application est conçue pour fonctionner avec le plugin Figma **ApertureEx
     "exportedAt": "2026-01-28 14:30:45",
     "timestamp": 1737982245000,
     "version": "1.2.0",
-    "generator": "ApertureExporter Plugin"
+    "generator": "Multibrand Token Exporter"
   },
   "tokens": [
     {
@@ -154,14 +160,21 @@ ApertureTokensManager/
 ├── App/                          # Point d'entrée
 ├── Components/                   # Composants UI réutilisables
 │   ├── ActionCard.swift          # Carte d'action avec Liquid Glass
+│   ├── ColorPreviewComponents.swift # Prévisualisation des couleurs
 │   ├── DropZone.swift            # Zone de drag & drop
+│   ├── HistoryRow.swift          # Ligne d'historique
+│   ├── RecentHistoryView.swift   # Historique récent
 │   ├── SearchField.swift         # Champ de recherche avec Cmd+F
+│   ├── SectionComponents.swift   # Composants de section
+│   ├── StatCard.swift            # Carte de statistique
 │   ├── TokenTree.swift           # Arborescence de tokens
-│   └── UnifiedHistoryView.swift  # Timeline d'historique
+│   ├── UnifiedHistoryView.swift  # Timeline d'historique
+│   └── ViewModifiers.swift       # Modificateurs (Liquid Glass adaptatif)
 ├── Extensions/                   # Extensions Swift
 │   ├── Color+Hex.swift           # Conversion hex ↔ Color + ColorDelta
 │   ├── SharedKeys.swift          # Clés @Shared pour persistance
-│   └── String+Date.swift         # Formatage de dates
+│   ├── String+Date.swift         # Formatage de dates
+│   └── UTType+Extensions.swift   # Types de fichiers supportés
 ├── Features/                     # Features TCA
 │   ├── App/                      # Coordination des onglets
 │   ├── Home/                     # Accueil avec stats et historique
@@ -169,17 +182,22 @@ ApertureTokensManager/
 │   ├── Compare/                  # Comparaison de versions
 │   ├── Analysis/                 # Analyse d'utilisation
 │   ├── Settings/                 # Paramètres de l'application
-│   └── TokenBrowser/             # Navigation dans les tokens
+│   ├── TokenBrowser/             # Navigation dans les tokens
+│   └── Tutorial/                 # Tutoriel de démarrage
 ├── Helpers/                      # Utilitaires
-│   ├── TokenHelpers.swift        # Manipulation de tokens
+│   ├── AnalysisReportFormatter.swift # Formatage des rapports
 │   ├── FuzzyMatchingHelpers.swift # Algorithmes de similarité
+│   ├── TokenHelpers.swift        # Manipulation de tokens
 │   └── TokenUsageHelpers.swift   # Détection d'usages Swift
 ├── Models/                       # Modèles de données
-│   ├── TokenNode.swift           # Structure d'un token
-│   ├── TokenExport.swift         # Format d'export Figma
+│   ├── Constants.swift           # Constantes UI et métier
+│   ├── DesignSystemBase.swift    # Base du design system
+│   ├── HistoryEntry.swift        # Entrées d'historique
+│   ├── PreviewData.swift         # Données pour les previews
 │   ├── TokenComparison.swift     # Résultats de comparaison
-│   ├── UsageAnalysis.swift       # Rapport d'analyse
-│   └── HistoryEntry.swift        # Entrées d'historique
+│   ├── TokenExport.swift         # Format d'export Figma
+│   ├── TokenNode.swift           # Structure d'un token
+│   └── UsageAnalysis.swift       # Rapport d'analyse
 └── Services/                     # Services métier
     ├── FileService/              # Lecture de fichiers JSON
     ├── ExportService/            # Export XCAssets + Swift
@@ -253,7 +271,7 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 
 ## 🔗 Liens utiles
 
-- [Plugin Figma ApertureExporter](# "Lien vers le plugin Figma")
+- [Plugin Figma Multibrand Token Exporter](https://www.figma.com/community/plugin/1601261816129528282/multibrand-token-exporter)
 - [Documentation TCA](https://github.com/pointfreeco/swift-composable-architecture)
 - [Figma Variables](https://help.figma.com/hc/en-us/articles/15339657135383-Guide-to-variables-in-Figma)
 - [Xcode Color Assets](https://developer.apple.com/documentation/xcode/customizing-the-appearance-of-your-app)

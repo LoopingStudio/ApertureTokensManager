@@ -17,6 +17,16 @@ struct ImportView: View {
       }
     }
     .searchFocusShortcut($isSearchFocused)
+    .alert("Remplacer la base actuelle ?", isPresented: $store.showSetAsBaseConfirmation) {
+      Button("Annuler", role: .cancel) {
+        send(.dismissSetAsBaseConfirmation)
+      }
+      Button("Remplacer", role: .destructive) {
+        send(.confirmSetAsBase)
+      }
+    } message: {
+      Text("Une base de design system existe déjà (\(store.designSystemBase?.fileName ?? "")). Voulez-vous la remplacer par l'import actuel ?")
+    }
   }
 
   private var header: some View {
@@ -33,14 +43,7 @@ struct ImportView: View {
             .buttonStyle(.adaptiveGlass())
             .controlSize(.small)
           
-          Button {
-            send(.setAsBaseButtonTapped)
-          } label: {
-            Label("Définir comme base", systemImage: "checkmark.seal")
-          }
-          .buttonStyle(.adaptiveGlass(.regular.tint(.green)))
-          .controlSize(.small)
-          .disabled(store.designSystemBase?.metadata == store.metadata)
+          setAsBaseButton
           
           Button("Exporter Design System") {
             send(.exportButtonTapped)
@@ -82,6 +85,49 @@ struct ImportView: View {
       Divider()
     }
     .padding()
+  }
+  
+  // MARK: - Set As Base Button
+  
+  private var isCurrentImportTheBase: Bool {
+    guard let baseMetadata = store.designSystemBase?.metadata,
+          let currentMetadata = store.metadata else {
+      return false
+    }
+    return baseMetadata == currentMetadata
+  }
+  
+  @ViewBuilder
+  private var setAsBaseButton: some View {
+    if isCurrentImportTheBase {
+      // L'import actuel est déjà la base - afficher un indicateur
+      HStack(spacing: 4) {
+        Image(systemName: "checkmark.seal.fill")
+          .foregroundStyle(.green)
+        Text("Base actuelle")
+          .foregroundStyle(.secondary)
+      }
+      .font(.callout)
+      .padding(.horizontal, 12)
+      .padding(.vertical, 6)
+      .background(
+        Capsule()
+          .fill(Color.green.opacity(0.1))
+          .overlay(
+            Capsule()
+              .strokeBorder(Color.green.opacity(0.3), lineWidth: 1)
+          )
+      )
+    } else {
+      // Bouton normal pour définir comme base
+      Button {
+        send(.setAsBaseButtonTapped)
+      } label: {
+        Label("Définir comme base", systemImage: "checkmark.seal")
+      }
+      .buttonStyle(.adaptiveGlass(.regular.tint(.green)))
+      .controlSize(.small)
+    }
   }
   
   private var fileSelectionArea: some View {

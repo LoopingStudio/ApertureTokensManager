@@ -23,6 +23,7 @@ struct TutorialView: View {
   @Namespace private var animation
   @State private var contentAppeared = false
   @State private var illustrationAppeared = false
+  @State private var scrollProxy: ScrollViewProxy?
   
   var body: some View {
     HStack(spacing: 0) {
@@ -51,6 +52,10 @@ struct TutorialView: View {
       illustrationAppeared = false
       withAnimation(TutorialConstants.Animation.springBouncy.delay(0.15)) {
         illustrationAppeared = true
+      }
+      // Reset scroll to top
+      withAnimation(TutorialConstants.Animation.smooth) {
+        scrollProxy?.scrollTo("stepHeader", anchor: .top)
       }
     }
   }
@@ -130,28 +135,32 @@ struct TutorialView: View {
       .padding(.top, 12)
       
       // Content
-      ScrollView {
-        VStack(alignment: .leading, spacing: 24) {
-          // Step header with animated icon
-          stepHeaderView
-            .opacity(contentAppeared ? 1 : 0)
-            .offset(y: contentAppeared ? 0 : 20)
-          
-          // Description
-          Text(store.currentStep.description)
-            .font(.body)
-            .lineSpacing(6)
-            .foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
-            .opacity(contentAppeared ? 1 : 0)
-            .offset(y: contentAppeared ? 0 : 10)
-          
-          // Image placeholder / Illustration
-          illustrationView
-            .opacity(illustrationAppeared ? 1 : 0)
-            .scaleEffect(illustrationAppeared ? 1 : 0.95)
+      ScrollViewReader { proxy in
+        ScrollView {
+          VStack(alignment: .leading, spacing: 24) {
+            // Step header with animated icon
+            stepHeaderView
+              .id("stepHeader")
+              .opacity(contentAppeared ? 1 : 0)
+              .offset(y: contentAppeared ? 0 : 20)
+            
+            // Description
+            Text(store.currentStep.description)
+              .font(.body)
+              .lineSpacing(6)
+              .foregroundStyle(.secondary)
+              .fixedSize(horizontal: false, vertical: true)
+              .opacity(contentAppeared ? 1 : 0)
+              .offset(y: contentAppeared ? 0 : 10)
+            
+            // Image placeholder / Illustration
+            illustrationView
+              .opacity(illustrationAppeared ? 1 : 0)
+              .scaleEffect(illustrationAppeared ? 1 : 0.95)
+          }
+          .padding(24)
         }
-        .padding(24)
+        .onAppear { scrollProxy = proxy }
       }
       
       // Navigation
@@ -201,18 +210,12 @@ struct TutorialView: View {
   @ViewBuilder
   private var illustrationView: some View {
     switch store.currentStep {
-    case .welcome:
-      welcomeIllustration
-    case .exportFigma:
-      figmaIllustration
-    case .importTokens:
-      importIllustration
-    case .setAsBase:
-      baseIllustration
-    case .compareAnalyze:
-      compareIllustration
-    case .exportXcode:
-      exportIllustration
+    case .welcome: welcomeIllustration
+    case .exportFigma: figmaIllustration
+    case .importTokens: importIllustration
+    case .setAsBase: baseIllustration
+    case .compareAnalyze: compareIllustration
+    case .exportXcode: exportIllustration
     }
   }
   
@@ -232,14 +235,8 @@ struct TutorialView: View {
         
         workflowIcon(icon: "hammer.fill", label: "Xcode", color: .blue, delay: 0.4)
       }
+      .frame(maxWidth: .infinity)
       .padding(.vertical, 32)
-      
-      // Image placeholder
-      ImagePlaceholder(
-        label: "Aperçu de l'application",
-        icon: "macwindow",
-        color: .purple
-      )
     }
     .padding(20)
     .background(
@@ -328,13 +325,11 @@ struct TutorialView: View {
       .buttonStyle(.plain)
       .scaleEffect(illustrationAppeared ? 1 : 0.95)
       .animation(TutorialConstants.Animation.spring, value: illustrationAppeared)
-      
-      // Image placeholder
-      ImagePlaceholder(
-        label: "Capture d'écran du plugin Figma",
-        icon: "rectangle.3.group",
-        color: .pink
-      )
+
+      Image(.plugin)
+        .resizable()
+        .scaledToFit()
+        .frame(maxWidth: .infinity)
     }
     .padding(20)
     .background(
@@ -401,14 +396,8 @@ struct TutorialView: View {
             .foregroundStyle(.secondary)
         }
       }
+      .frame(maxWidth: .infinity)
       .padding(.vertical, 16)
-      
-      // Image placeholder
-      ImagePlaceholder(
-        label: "Capture de l'écran d'import",
-        icon: "square.and.arrow.down.on.square",
-        color: .blue
-      )
     }
     .padding(20)
     .background(
@@ -500,13 +489,6 @@ struct TutorialView: View {
           appeared: illustrationAppeared
         )
       }
-      
-      // Image placeholder
-      ImagePlaceholder(
-        label: "Capture des écrans Comparer et Analyser",
-        icon: "rectangle.split.2x1",
-        color: .green
-      )
     }
     .padding(20)
     .background(
@@ -543,14 +525,8 @@ struct TutorialView: View {
           appeared: illustrationAppeared
         )
       }
+      .frame(maxWidth: .infinity)
       .padding(.vertical, 8)
-      
-      // Image placeholder
-      ImagePlaceholder(
-        label: "Capture de l'écran d'export avec les options",
-        icon: "square.and.arrow.up",
-        color: .teal
-      )
     }
     .padding(20)
     .background(
