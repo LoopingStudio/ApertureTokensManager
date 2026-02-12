@@ -222,7 +222,7 @@ actor ExportService {
       ]
     ]
     
-    let jsonData = try JSONSerialization.data(withJSONObject: contentsJSON, options: [.prettyPrinted])
+    let jsonData = try JSONSerialization.data(withJSONObject: contentsJSON, options: [.prettyPrinted, .sortedKeys])
     try jsonData.write(to: colorsetURL.appendingPathComponent("Contents.json"))
   }
   
@@ -241,7 +241,7 @@ actor ExportService {
     extension Aperture.Theme {
       public func color(_ token: Aperture.Foundations.Color) -> Color {
         // Dynamically prefixes the path with the active theme
-        Color("\\(self.rawValue)/\\(token.rawValue)", bundle: .module)
+        Color("\\(self.id)/\\(token.rawValue)", bundle: .module)
       }
     }
 
@@ -275,7 +275,7 @@ actor ExportService {
     
     swiftContent += """
       }
-    }
+    }\n
     """
     
     let swiftURL = baseURL.appendingPathComponent(ExportFiles.apertureColors)

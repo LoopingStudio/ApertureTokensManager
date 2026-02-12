@@ -35,8 +35,8 @@ extension ImportFeature {
       state.currentFileURL = url
       
       // Appliquer les filtres initiaux avant de sélectionner
-      applyFiltersToNodes(state: &state)
-      
+      applyFiltersToNodes(state: &state, filters: state.filters)
+
       // Sélectionner le premier node après filtrage
       state.allNodes = TokenHelpers.flattenAllNodes(state.rootNodes)
       state.selectedNode = state.rootNodes.first
@@ -80,7 +80,7 @@ extension ImportFeature {
         .send(.internal(.loadFile(url)))
       )
     case .applyFilters:
-      applyFiltersToNodes(state: &state)
+      applyFiltersToNodes(state: &state, filters: state.filters)
       return .none
     case .filtersChanged(let filters):
       applyFiltersToNodes(state: &state, filters: filters)
@@ -92,11 +92,6 @@ extension ImportFeature {
           .map { Action.internal(.filtersChanged($0)) }
       }
     }
-  }
-  
-  // Fonction pour appliquer les filtres aux nœuds
-  func applyFiltersToNodes(state: inout State) {
-    applyFiltersToNodes(state: &state, filters: state.filters)
   }
   
   func applyFiltersToNodes(state: inout State, filters: TokenFilters) {
