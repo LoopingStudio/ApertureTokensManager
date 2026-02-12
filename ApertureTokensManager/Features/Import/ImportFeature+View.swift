@@ -132,15 +132,9 @@ struct ImportView: View {
   
   private var figmaPluginLink: some View {
     Link(destination: TutorialConstants.figmaPluginURL) {
-      HStack(spacing: UIConstants.Spacing.medium) {
-        Image(systemName: "puzzlepiece.extension")
-          .font(.body)
-        Text("Obtenir le plugin Figma")
-          .font(.callout)
-        Image(systemName: "arrow.up.right")
-          .font(.caption)
-      }
-      .foregroundStyle(.purple)
+      Text("Pas encore de fichier ? Obtenir le plugin Figma →")
+        .font(.caption)
+        .foregroundStyle(.secondary)
     }
     .buttonStyle(.plain)
     .onHover { isHovered in
