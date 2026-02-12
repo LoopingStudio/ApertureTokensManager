@@ -69,4 +69,67 @@ enum TokenHelpers {
 
     return search(tokens)
   }
+  
+  /// Applies filters to a copy of tokens and returns the filtered copy
+  static func applyFilters(_ filters: TokenFilters, to tokens: [TokenNode]) -> [TokenNode] {
+    var copy = tokens
+    applyFiltersRecursively(nodes: &copy, filters: filters)
+    return copy
+  }
+  
+  private static func applyFiltersRecursively(
+    nodes: inout [TokenNode],
+    filters: TokenFilters,
+    forceDisabled: Bool = false
+  ) {
+    for i in 0..<nodes.count {
+      var shouldDisableChildren = forceDisabled
+      
+      // Filtrer le groupe Utility
+      if nodes[i].type == .group && nodes[i].name.lowercased() == GroupNames.utility {
+        if filters.excludeUtilityGroup {
+          nodes[i].isEnabled = false
+          shouldDisableChildren = true
+        } else if !forceDisabled {
+          nodes[i].isEnabled = true
+        }
+      } else if nodes[i].type == .group && !forceDisabled {
+        // Les autres groupes sont activés par défaut (sauf si parent désactivé)
+        nodes[i].isEnabled = true
+      }
+      
+      // Si forcé par un parent désactivé
+      if forceDisabled {
+        nodes[i].isEnabled = false
+      }
+      
+      // Appliquer les filtres au nœud courant s'il s'agit d'un token
+      if nodes[i].type == .token {
+        if shouldDisableChildren {
+          nodes[i].isEnabled = false
+        } else {
+          var newIsEnabled = true
+          
+          if filters.excludeTokensStartingWithHash && nodes[i].name.hasPrefix("#") {
+            newIsEnabled = false
+          }
+          if filters.excludeTokensEndingWithHover && nodes[i].name.hasSuffix("_hover") {
+            newIsEnabled = false
+          }
+          
+          nodes[i].isEnabled = newIsEnabled
+        }
+      }
+      
+      // Appliquer les filtres aux enfants
+      if var children = nodes[i].children {
+        applyFiltersRecursively(
+          nodes: &children,
+          filters: filters,
+          forceDisabled: shouldDisableChildren
+        )
+        nodes[i].children = children
+      }
+    }
+  }
 }

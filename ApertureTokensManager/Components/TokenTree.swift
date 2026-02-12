@@ -63,7 +63,7 @@ struct TokenTree: View {
           )
         }
       }
-      .padding(.vertical, 4)
+      .padding(.vertical, UIConstants.Spacing.small)
     }
   }
 }
@@ -165,8 +165,8 @@ struct TokenTreeRow: View {
         colorPreviews(modes)
       }
     }
-    .padding(.horizontal, 8)
-    .padding(.vertical, 4)
+    .padding(.horizontal, UIConstants.Spacing.medium)
+    .padding(.vertical, UIConstants.Spacing.small)
     .background(rowBackground)
     .contentShape(Rectangle())
     .onTapGesture { onSelect() }
@@ -184,13 +184,13 @@ struct TokenTreeRow: View {
           .foregroundStyle(.secondary)
           .rotationEffect(.degrees(isExpanded ? 90 : 0))
           .animation(.easeOut(duration: 0.15), value: isExpanded)
-          .frame(width: 24, height: 24)
+          .frame(width: UIConstants.Size.treeChevronSize, height: UIConstants.Size.treeChevronSize)
           .contentShape(Rectangle())
       }
       .buttonStyle(.plain)
     } else {
       Spacer()
-        .frame(width: 24)
+        .frame(width: UIConstants.Size.treeChevronSize)
     }
   }
   
@@ -202,7 +202,7 @@ struct TokenTreeRow: View {
         .foregroundStyle(node.isEnabled ? .purple : .gray.opacity(0.5))
     }
     .buttonStyle(.plain)
-    .padding(.trailing, 6)
+    .padding(.trailing, UIConstants.Spacing.medium)
     .animation(.easeOut(duration: 0.15), value: node.isEnabled)
   }
   
@@ -216,7 +216,7 @@ struct TokenTreeRow: View {
       } else if let color = firstLightColor {
         Circle()
           .fill(Color(hex: color))
-          .frame(width: 12, height: 12)
+          .frame(width: UIConstants.Size.treeColorDotSize, height: UIConstants.Size.treeColorDotSize)
           .overlay(
             Circle()
               .stroke(Color.primary.opacity(0.15), lineWidth: 0.5)
@@ -224,11 +224,11 @@ struct TokenTreeRow: View {
       } else {
         Circle()
           .fill(Color.gray.opacity(0.3))
-          .frame(width: 12, height: 12)
+          .frame(width: UIConstants.Size.treeColorDotSize, height: UIConstants.Size.treeColorDotSize)
       }
     }
-    .frame(width: 16)
-    .padding(.trailing, 6)
+    .frame(width: UIConstants.Size.treeIconSize)
+    .padding(.trailing, UIConstants.Spacing.medium)
   }
   
   @ViewBuilder
@@ -241,7 +241,7 @@ struct TokenTreeRow: View {
         themePreview(newBrand, label: "N")
       }
     }
-    .padding(.trailing, 4)
+    .padding(.trailing, UIConstants.Spacing.small)
   }
   
   @ViewBuilder
@@ -260,7 +260,7 @@ struct TokenTreeRow: View {
   private func miniColorSquare(hex: String, isDark: Bool) -> some View {
     RoundedRectangle(cornerRadius: 2)
       .fill(Color(hex: hex))
-      .frame(width: 14, height: 14)
+      .frame(width: UIConstants.Size.treeMiniColorSize, height: UIConstants.Size.treeMiniColorSize)
       .overlay(
         RoundedRectangle(cornerRadius: 2)
           .stroke(Color.primary.opacity(isDark ? 0.3 : 0.15), lineWidth: 0.5)

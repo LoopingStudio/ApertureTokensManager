@@ -92,10 +92,9 @@ public struct TokenNode: Identifiable, Codable, Equatable, Sendable {
 extension TokenNode {
   mutating func toggleRecursively(_ state: Bool) {
     self.isEnabled = state
-    if children != nil {
-      for i in 0..<children!.count {
-        children![i].toggleRecursively(state)
-      }
+    guard children != nil else { return }
+    for i in children!.indices {
+      children![i].toggleRecursively(state)
     }
   }
 }

@@ -17,7 +17,7 @@ struct ImportHistoryView: View {
       maxHeight: 180,
       onClear: onClear
     ) {
-      VStack(spacing: 6) {
+      VStack(spacing: UIConstants.Spacing.medium) {
         ForEach(Array(history.enumerated()), id: \.element.id) { index, entry in
           ImportHistoryRow(entry: entry) {
             onEntryTapped(entry)
@@ -50,8 +50,8 @@ struct ImportHistoryRow: View {
         .font(.title3)
         .foregroundStyle(.purple)
     } content: {
-      VStack(alignment: .leading, spacing: 2) {
-        HStack(spacing: 4) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.extraSmall) {
+        HStack(spacing: UIConstants.Spacing.small) {
           Text(entry.fileName)
             .font(.subheadline)
             .fontWeight(.medium)
@@ -64,7 +64,7 @@ struct ImportHistoryRow: View {
           }
         }
         
-        HStack(spacing: 8) {
+        HStack(spacing: UIConstants.Spacing.medium) {
           Label(entry.date.formatted(date: .abbreviated, time: .shortened), systemImage: "clock")
             .font(.caption2)
             .foregroundStyle(.secondary)
@@ -101,7 +101,7 @@ struct ComparisonHistoryView: View {
       maxHeight: 200,
       onClear: onClear
     ) {
-      VStack(spacing: 6) {
+      VStack(spacing: UIConstants.Spacing.medium) {
         ForEach(Array(history.enumerated()), id: \.element.id) { index, entry in
           ComparisonHistoryRow(entry: entry) {
             onEntryTapped(entry)
@@ -134,8 +134,8 @@ struct ComparisonHistoryRow: View {
         .font(.title3)
         .foregroundStyle(.blue)
     } content: {
-      VStack(alignment: .leading, spacing: 4) {
-        HStack(spacing: 4) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
+        HStack(spacing: UIConstants.Spacing.small) {
           fileVersionLabel(entry.oldFile, color: .blue)
           Image(systemName: "arrow.right")
             .font(.caption2)
@@ -145,7 +145,7 @@ struct ComparisonHistoryRow: View {
         .font(.subheadline)
         .fontWeight(.medium)
         
-        HStack(spacing: 8) {
+        HStack(spacing: UIConstants.Spacing.medium) {
           Label(entry.date.formatted(date: .abbreviated, time: .shortened), systemImage: "clock")
             .font(.caption2)
             .foregroundStyle(.secondary)
@@ -162,7 +162,7 @@ struct ComparisonHistoryRow: View {
   
   @ViewBuilder
   private var summaryBadges: some View {
-    HStack(spacing: 4) {
+    HStack(spacing: UIConstants.Spacing.small) {
       if entry.summary.addedCount > 0 {
         summaryBadge(count: entry.summary.addedCount, color: .green)
       }
@@ -181,15 +181,15 @@ struct ComparisonHistoryRow: View {
       .font(.caption2)
       .fontWeight(.medium)
       .foregroundStyle(color)
-      .padding(.horizontal, 4)
+      .padding(.horizontal, UIConstants.Spacing.small)
       .padding(.vertical, 1)
       .background(color.opacity(0.15))
-      .clipShape(RoundedRectangle(cornerRadius: 3))
+      .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.extraSmall))
   }
   
   @ViewBuilder
   private func fileVersionLabel(_ file: FileSnapshot, color: Color) -> some View {
-    HStack(spacing: 4) {
+    HStack(spacing: UIConstants.Spacing.small) {
       Text(file.fileName)
         .lineLimit(1)
       if let exportDate = file.metadata?.exportedAt {
@@ -211,7 +211,7 @@ struct ComparisonHistoryRow: View {
     onRemove: { _ in },
     onClear: { }
   )
-  .frame(width: 400)
+  .frame(width: UIConstants.Size.previewWidth)
   .padding()
 }
 
@@ -222,7 +222,7 @@ struct ComparisonHistoryRow: View {
     onRemove: { _ in },
     onClear: { }
   )
-  .frame(width: 400)
+  .frame(width: UIConstants.Size.previewWidth)
   .padding()
 }
 
@@ -233,7 +233,7 @@ struct ComparisonHistoryRow: View {
     onRemove: { _ in },
     onClear: { }
   )
-  .frame(width: 500)
+  .frame(width: UIConstants.Size.historyMaxWidth)
   .padding()
 }
 
@@ -244,7 +244,7 @@ struct ComparisonHistoryRow: View {
     onRemove: { _ in },
     onClear: { }
   )
-  .frame(width: 500)
+  .frame(width: UIConstants.Size.historyMaxWidth)
   .padding()
 }
 #endif

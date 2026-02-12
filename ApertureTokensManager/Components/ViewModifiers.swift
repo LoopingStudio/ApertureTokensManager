@@ -68,15 +68,15 @@ private struct GlassButtonContent<Label: View>: View {
   var body: some View {
     if let tint = tintColor {
       label
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
+        .padding(.horizontal, UIConstants.Spacing.large)
+        .padding(.vertical, UIConstants.Spacing.medium)
         .glassEffect(.regular.tint(tint).interactive())
         .scaleEffect(isPressed ? 0.97 : 1.0)
         .animation(.easeOut(duration: 0.15), value: isPressed)
     } else {
       label
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
+        .padding(.horizontal, UIConstants.Spacing.large)
+        .padding(.vertical, UIConstants.Spacing.medium)
         .glassEffect(.regular.interactive())
         .scaleEffect(isPressed ? 0.97 : 1.0)
         .animation(.easeOut(duration: 0.15), value: isPressed)
@@ -91,8 +91,8 @@ private struct GlassProminentButtonContent<Label: View>: View {
   
   var body: some View {
     label
-      .padding(.horizontal, 16)
-      .padding(.vertical, 8)
+      .padding(.horizontal, UIConstants.Spacing.extraLarge)
+      .padding(.vertical, UIConstants.Spacing.medium)
       .glassEffect(.regular.tint(.accentColor).interactive())
       .scaleEffect(isPressed ? 0.97 : 1.0)
       .animation(.easeOut(duration: 0.15), value: isPressed)
@@ -113,14 +113,14 @@ private struct FallbackGlassButton: View {
   
   var body: some View {
     configuration.label
-      .padding(.horizontal, 12)
-      .padding(.vertical, 6)
+      .padding(.horizontal, UIConstants.Spacing.large)
+      .padding(.vertical, UIConstants.Spacing.medium)
       .background(
-        RoundedRectangle(cornerRadius: 8)
+        RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
           .fill(effectiveColor.opacity(configuration.isPressed ? 0.2 : (isHovering ? 0.15 : 0.1)))
       )
       .overlay(
-        RoundedRectangle(cornerRadius: 8)
+        RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
           .stroke(effectiveColor.opacity(configuration.isPressed ? 0.5 : (isHovering ? 0.4 : 0.3)), lineWidth: 1)
       )
       .foregroundStyle(effectiveColor)
@@ -138,10 +138,10 @@ private struct FallbackGlassProminentButton: View {
   
   var body: some View {
     configuration.label
-      .padding(.horizontal, 16)
-      .padding(.vertical, 8)
+      .padding(.horizontal, UIConstants.Spacing.extraLarge)
+      .padding(.vertical, UIConstants.Spacing.medium)
       .background(
-        RoundedRectangle(cornerRadius: 8)
+        RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
           .fill(Color.accentColor.opacity(configuration.isPressed ? 0.9 : (isHovering ? 0.85 : 0.8)))
       )
       .foregroundStyle(.white)
@@ -271,7 +271,7 @@ struct InteractiveCardModifier: ViewModifier {
       )
       .scaleEffect(isHovering ? 1.02 : 1.0)
       .shadow(color: isHovering ? color.opacity(0.15) : .clear, radius: 8)
-      .animation(.easeOut(duration: 0.2), value: isHovering)
+      .animation(.easeOut(duration: AnimationDuration.normal), value: isHovering)
       .onHover { isHovering = $0 }
   }
 }

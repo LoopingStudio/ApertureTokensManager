@@ -50,7 +50,7 @@ public struct ComparisonChanges: Equatable, Sendable {
 
 // Résumé léger d'un token (sans stocker le node complet)
 public struct TokenSummary: Equatable, Sendable, Identifiable {
-  public let id = UUID()
+  public var id: String { path }
   let name: String
   let path: String
   let modes: TokenThemes?
@@ -64,14 +64,14 @@ public struct TokenSummary: Equatable, Sendable, Identifiable {
 
 // Structure pour représenter une suggestion de remplacement manuelle
 public struct ReplacementSuggestion: Equatable, Sendable, Identifiable {
-  public let id = UUID()
+  public var id: String { removedTokenPath }
   let removedTokenPath: String
   let suggestedTokenPath: String
 }
 
 // Structure pour représenter une suggestion automatique avec score de confiance
 public struct AutoSuggestion: Equatable, Sendable, Identifiable {
-  public let id = UUID()
+  public var id: String { removedTokenPath }
   let removedTokenPath: String
   let suggestedTokenPath: String
   let confidence: Double  // 0.0 à 1.0
@@ -86,14 +86,14 @@ public struct AutoSuggestion: Equatable, Sendable, Identifiable {
 
 // Structure pour représenter une modification de token (allégée)
 public struct TokenModification: Equatable, Sendable, Identifiable {
-  public let id = UUID()
+  public var id: String { tokenPath }
   let tokenPath: String
   let tokenName: String
   let colorChanges: [ColorChange]
 }
 
 public struct ColorChange: Equatable, Sendable, Identifiable {
-  public let id = UUID()
+  public var id: String { "\(brandName)-\(theme)" }
   let brandName: String
   let theme: String
   let oldColor: String

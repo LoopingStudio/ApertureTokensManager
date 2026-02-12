@@ -91,7 +91,7 @@ struct UnifiedHistoryRow: View {
       iconView
       
       // Content
-      VStack(alignment: .leading, spacing: 2) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.extraSmall) {
         titleView
         subtitleView
       }
@@ -99,7 +99,7 @@ struct UnifiedHistoryRow: View {
       Spacer()
       
       // Details + Date
-      VStack(alignment: .trailing, spacing: 4) {
+      VStack(alignment: .trailing, spacing: UIConstants.Spacing.small) {
         detailsView
         
         Text(item.date.formatted(.relative(presentation: .named)))
@@ -124,7 +124,7 @@ struct UnifiedHistoryRow: View {
       ZStack {
         Circle()
           .fill(Color.purple.opacity(0.15))
-          .frame(width: 36, height: 36)
+          .frame(width: UIConstants.Size.iconMedium, height: UIConstants.Size.iconMedium)
         
         Image(systemName: "square.and.arrow.down.fill")
           .font(.system(size: 14, weight: .semibold))
@@ -134,7 +134,7 @@ struct UnifiedHistoryRow: View {
       ZStack {
         Circle()
           .fill(Color.blue.opacity(0.15))
-          .frame(width: 36, height: 36)
+          .frame(width: UIConstants.Size.iconMedium, height: UIConstants.Size.iconMedium)
         
         Image(systemName: "doc.text.magnifyingglass")
           .font(.system(size: 14, weight: .semibold))
@@ -149,7 +149,7 @@ struct UnifiedHistoryRow: View {
   private var titleView: some View {
     switch item {
     case .imported(let entry):
-      HStack(spacing: 4) {
+      HStack(spacing: UIConstants.Spacing.small) {
         Text(entry.fileName)
           .font(.callout)
           .fontWeight(.medium)
@@ -163,7 +163,7 @@ struct UnifiedHistoryRow: View {
       }
       
     case .comparison(let entry):
-      HStack(spacing: 4) {
+      HStack(spacing: UIConstants.Spacing.small) {
         Text(entry.oldFile.fileName)
           .font(.callout)
           .fontWeight(.medium)
@@ -216,14 +216,14 @@ struct UnifiedHistoryRow: View {
           .font(.caption2)
           .fontWeight(.medium)
           .foregroundStyle(.purple)
-          .padding(.horizontal, 6)
-          .padding(.vertical, 2)
+          .padding(.horizontal, UIConstants.Spacing.medium)
+          .padding(.vertical, UIConstants.Spacing.extraSmall)
           .background(Color.purple.opacity(0.12))
-          .clipShape(RoundedRectangle(cornerRadius: 4))
+          .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.small))
       }
       
     case .comparison(let entry):
-      HStack(spacing: 4) {
+      HStack(spacing: UIConstants.Spacing.small) {
         if entry.summary.addedCount > 0 {
           diffBadge(prefix: "+", count: entry.summary.addedCount, color: .green)
         }
@@ -244,9 +244,9 @@ struct UnifiedHistoryRow: View {
       .fontWeight(.semibold)
       .foregroundStyle(color)
       .padding(.horizontal, 5)
-      .padding(.vertical, 2)
+      .padding(.vertical, UIConstants.Spacing.extraSmall)
       .background(color.opacity(0.15))
-      .clipShape(RoundedRectangle(cornerRadius: 4))
+      .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.small))
   }
 }
 
@@ -284,6 +284,6 @@ struct UnifiedHistoryRow: View {
     onItemTapped: { _ in }
   )
   .padding()
-  .frame(width: 500)
+  .frame(width: UIConstants.Size.historyMaxWidth)
 }
 #endif

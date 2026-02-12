@@ -24,7 +24,7 @@ struct SearchField: View {
   
   var body: some View {
     VStack(spacing: 0) {
-      HStack(spacing: 8) {
+      HStack(spacing: UIConstants.Spacing.medium) {
         Image(systemName: "magnifyingglass")
           .foregroundStyle(isFocused ? .purple : .secondary)
         
@@ -49,7 +49,7 @@ struct SearchField: View {
           .buttonStyle(.plain)
         }
       }
-      .padding(8)
+      .padding(UIConstants.Spacing.medium)
       .background(Color(nsColor: .controlBackgroundColor))
       
       // Message si aucun résultat
@@ -62,8 +62,8 @@ struct SearchField: View {
             .foregroundStyle(.secondary)
           Spacer()
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.horizontal, UIConstants.Spacing.medium)
+        .padding(.vertical, UIConstants.Spacing.small)
         .background(Color.orange.opacity(0.1))
       }
     }
@@ -115,7 +115,7 @@ struct SearchFieldPreview: View {
         .foregroundStyle(.secondary)
     }
     .padding()
-    .frame(width: 300, height: 200)
+    .frame(width: UIConstants.Size.searchFieldWidth, height: 200)
     .searchFocusShortcut($isFocused)
   }
 }
@@ -134,6 +134,6 @@ struct SearchFieldPreview: View {
     totalCount: 120,
     isFocused: $isFocused
   )
-  .frame(width: 300)
+  .frame(width: UIConstants.Size.searchFieldWidth)
 }
 #endif

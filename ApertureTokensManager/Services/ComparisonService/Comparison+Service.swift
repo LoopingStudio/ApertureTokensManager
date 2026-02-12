@@ -14,8 +14,9 @@ actor ComparisonService {
     let newFlat = TokenHelpers.flattenTokens(newTokens)
     
     // Créer des dictionnaires pour la comparaison rapide par chemin
-    let oldDict = Dictionary(uniqueKeysWithValues: oldFlat.map { ($0.path ?? $0.name, $0) })
-    let newDict = Dictionary(uniqueKeysWithValues: newFlat.map { ($0.path ?? $0.name, $0) })
+    // Utilise le dernier token en cas de doublon (évite le crash)
+    let oldDict = Dictionary(oldFlat.map { ($0.path ?? $0.name, $0) }, uniquingKeysWith: { _, last in last })
+    let newDict = Dictionary(newFlat.map { ($0.path ?? $0.name, $0) }, uniquingKeysWith: { _, last in last })
     
     // Trouver les tokens ajoutés, supprimés et modifiés
     let added = findAddedTokens(oldDict: oldDict, newDict: newDict)

@@ -20,7 +20,7 @@ struct ActionCard: View {
     .buttonStyle(.plain)
     .scaleEffect(isPressed ? 0.97 : (isHovering ? 1.01 : 1.0))
     .shadow(color: isHovering ? color.opacity(0.12) : .clear, radius: 6)
-    .animation(.easeOut(duration: 0.2), value: isHovering)
+    .animation(.easeOut(duration: AnimationDuration.normal), value: isHovering)
     .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
     .pointerOnHover { hovering in handleHover(hovering) }
   }
@@ -30,7 +30,7 @@ struct ActionCard: View {
     HStack(spacing: UIConstants.Spacing.medium) {
       iconCircle
       
-      VStack(alignment: .leading, spacing: 2) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.extraSmall) {
         Text(title)
           .font(.headline)
           .foregroundStyle(.primary)
@@ -53,7 +53,7 @@ struct ActionCard: View {
     ZStack {
       Circle()
         .fill(color.opacity(0.15))
-        .frame(width: 44, height: 44)
+        .frame(width: UIConstants.Size.iconLarge, height: UIConstants.Size.iconLarge)
       
       Image(systemName: icon)
         .font(.title3)
@@ -68,7 +68,7 @@ struct ActionCard: View {
       .font(.caption)
       .foregroundStyle(.tertiary)
       .offset(x: isHovering ? 3 : 0)
-      .animation(.easeOut(duration: 0.2), value: isHovering)
+      .animation(.easeOut(duration: AnimationDuration.normal), value: isHovering)
   }
   
   @ViewBuilder
@@ -85,7 +85,8 @@ struct ActionCard: View {
     withAnimation(.spring(response: 0.1, dampingFraction: 0.6)) {
       isPressed = true
     }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+    Task {
+      try? await Task.sleep(for: .milliseconds(100))
       withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
         isPressed = false
       }
@@ -103,7 +104,8 @@ struct ActionCard: View {
     withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
       iconBounce = true
     }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+    Task {
+      try? await Task.sleep(for: .milliseconds(150))
       withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
         iconBounce = false
       }
@@ -113,7 +115,7 @@ struct ActionCard: View {
 
 #if DEBUG
 #Preview("ActionCard") {
-  VStack(spacing: 16) {
+  VStack(spacing: UIConstants.Spacing.extraLarge) {
     ActionCard(
       title: "Exporter vers Xcode",
       subtitle: "Générer XCAssets + Swift",
@@ -133,6 +135,6 @@ struct ActionCard: View {
     }
   }
   .padding()
-  .frame(width: 400)
+  .frame(width: UIConstants.Size.previewWidth)
 }
 #endif

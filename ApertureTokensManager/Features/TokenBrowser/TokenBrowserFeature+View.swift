@@ -13,7 +13,7 @@ struct TokenBrowserView: View {
       Divider()
       browserContent
     }
-    .frame(minWidth: 700, idealWidth: 900, minHeight: 500, idealHeight: 600)
+    .frame(minWidth: UIConstants.Size.windowMinWidth, idealWidth: UIConstants.Size.windowDefaultWidth, minHeight: UIConstants.Size.windowMinHeight, idealHeight: UIConstants.Size.windowMinHeight)
     .searchFocusShortcut($isSearchFocused)
   }
   
@@ -23,12 +23,12 @@ struct TokenBrowserView: View {
         .font(.title2)
         .foregroundStyle(.purple)
       
-      VStack(alignment: .leading, spacing: 2) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.extraSmall) {
         Text("Tokens du Design System")
           .font(.title3)
           .fontWeight(.semibold)
         
-        HStack(spacing: 8) {
+        HStack(spacing: UIConstants.Spacing.medium) {
           Text("Version \(store.metadata.version)")
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -60,10 +60,10 @@ struct TokenBrowserView: View {
   private var browserContent: some View {
     HSplitView {
       tokenListView
-        .frame(minWidth: 250, maxHeight: .infinity)
+        .frame(minWidth: UIConstants.Size.splitViewMinWidth, maxHeight: .infinity)
       
       tokenDetailView
-        .frame(minWidth: 400, idealWidth: 600, maxHeight: .infinity)
+        .frame(minWidth: UIConstants.Size.previewWidth, idealWidth: UIConstants.Size.splitViewIdealWidth, maxHeight: .infinity)
     }
   }
   
@@ -138,7 +138,7 @@ struct TokenBrowserView: View {
       TokenBrowserFeature()
     }
   )
-  .frame(width: 800, height: 500)
+  .frame(width: UIConstants.Size.windowMinWidth, height: UIConstants.Size.windowMinHeight)
 }
 
 #Preview("Token Browser - With Selection") {
@@ -152,6 +152,6 @@ struct TokenBrowserView: View {
       TokenBrowserFeature()
     }
   )
-  .frame(width: 800, height: 500)
+  .frame(width: UIConstants.Size.windowMinWidth, height: UIConstants.Size.windowMinHeight)
 }
 #endif

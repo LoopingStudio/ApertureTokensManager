@@ -10,7 +10,7 @@ struct UsedTokensListView: View {
     HSplitView {
       // Token List
       ScrollView {
-        LazyVStack(spacing: 4) {
+        LazyVStack(spacing: UIConstants.Spacing.small) {
           ForEach(tokens) { token in
             TokenRow(
               token: token,
@@ -20,7 +20,7 @@ struct UsedTokensListView: View {
             )
           }
         }
-        .padding(8)
+        .padding(UIConstants.Spacing.medium)
       }
       .frame(minWidth: 300)
       
@@ -37,7 +37,7 @@ struct UsedTokensListView: View {
   
   @ViewBuilder
   private var emptyDetail: some View {
-    VStack(spacing: 12) {
+    VStack(spacing: UIConstants.Spacing.large) {
       Image(systemName: "doc.text.magnifyingglass")
         .font(.largeTitle)
         .foregroundStyle(.secondary)
@@ -65,7 +65,7 @@ private struct TokenRow: View {
   var body: some View {
     Button(action: onTap) {
       HStack {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
           TokenTreeSearchHelper.highlightedText(token.enumCase, searchText: searchText, baseColor: .primary)
             .font(.system(.body, design: .monospaced))
             .fontWeight(.medium)
@@ -81,17 +81,17 @@ private struct TokenRow: View {
         Text("\(token.usageCount)")
           .font(.system(.caption, design: .rounded, weight: .bold))
           .foregroundStyle(.white)
-          .padding(.horizontal, 8)
-          .padding(.vertical, 4)
+          .padding(.horizontal, UIConstants.Spacing.medium)
+          .padding(.vertical, UIConstants.Spacing.small)
           .background(usageCountColor)
           .clipShape(Capsule())
       }
-      .padding(10)
+      .padding(UIConstants.Spacing.extraLarge)
       .background(isSelected ? Color.accentColor.opacity(0.2) : Color(.controlBackgroundColor))
-      .clipShape(RoundedRectangle(cornerRadius: 8))
+      .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large))
       .overlay {
         if isSelected {
-          RoundedRectangle(cornerRadius: 8)
+          RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
             .stroke(Color.accentColor, lineWidth: 2)
         }
       }
@@ -114,9 +114,9 @@ private struct TokenDetailPanel: View {
   let token: UsedToken
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.extraLarge) {
       // Header
-      VStack(alignment: .leading, spacing: 8) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
         Text(token.enumCase)
           .font(.title2)
           .fontWeight(.bold)
@@ -138,14 +138,14 @@ private struct TokenDetailPanel: View {
       }
       .padding()
       .background(Color(.controlBackgroundColor).opacity(0.5))
-      .clipShape(RoundedRectangle(cornerRadius: 12))
+      .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.xxLarge))
       
       // Usages List
       Text("Occurrences")
         .font(.headline)
       
       ScrollView {
-        LazyVStack(spacing: 8) {
+        LazyVStack(spacing: UIConstants.Spacing.medium) {
           ForEach(token.usages) { usage in
             UsageRow(usage: usage)
           }
@@ -162,7 +162,7 @@ private struct UsageRow: View {
   let usage: TokenUsage
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 6) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
       HStack {
         Image(systemName: "doc.text")
           .foregroundStyle(.blue)
@@ -180,8 +180,8 @@ private struct UsageRow: View {
         Text(usage.matchType)
           .font(.caption2)
           .foregroundStyle(.secondary)
-          .padding(.horizontal, 6)
-          .padding(.vertical, 2)
+          .padding(.horizontal, UIConstants.Spacing.medium)
+          .padding(.vertical, UIConstants.Spacing.extraSmall)
           .background(Color(.controlBackgroundColor))
           .clipShape(Capsule())
       }
@@ -198,9 +198,9 @@ private struct UsageRow: View {
         .lineLimit(1)
         .truncationMode(.middle)
     }
-    .padding(10)
+    .padding(UIConstants.Spacing.extraLarge)
     .background(Color(.controlBackgroundColor))
-    .clipShape(RoundedRectangle(cornerRadius: 8))
+    .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large))
   }
   
   private var fileName: String {

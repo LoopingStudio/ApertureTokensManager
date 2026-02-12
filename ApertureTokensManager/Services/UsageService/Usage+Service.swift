@@ -201,12 +201,12 @@ actor UsageService {
   private func resolveDirectory(_ directory: ScanDirectory) -> (url: URL, canAccess: Bool) {
     let url: URL
     if let bookmarkData = directory.bookmarkData {
-      var isStale = false
+      var _isStale = false
       if let resolvedURL = try? URL(
         resolvingBookmarkData: bookmarkData,
         options: .withSecurityScope,
         relativeTo: nil,
-        bookmarkDataIsStale: &isStale
+        bookmarkDataIsStale: &_isStale
       ) {
         url = resolvedURL
       } else {

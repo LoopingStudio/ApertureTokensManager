@@ -51,7 +51,7 @@ extension UsageClient: DependencyKey {
       }
       
       // Générer des données de preview
-      let allTokens = flattenTokens(tokens)
+      let allTokens = TokenHelpers.flattenTokens(tokens)
       let usedCount = min(allTokens.count / 2, 5)
       let orphanedCount = min(allTokens.count - usedCount, 3)
       
@@ -91,22 +91,6 @@ extension UsageClient: DependencyKey {
       )
     }
   )
-  
-  private static func flattenTokens(_ nodes: [TokenNode]) -> [TokenNode] {
-    var result: [TokenNode] = []
-    func collect(_ nodes: [TokenNode]) {
-      for node in nodes {
-        if node.type == .token {
-          result.append(node)
-        }
-        if let children = node.children {
-          collect(children)
-        }
-      }
-    }
-    collect(nodes)
-    return result
-  }
 }
 
 // MARK: - Dependency Values

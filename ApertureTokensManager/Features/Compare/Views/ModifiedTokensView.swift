@@ -7,7 +7,7 @@ struct ModifiedTokensView: View {
   
   var body: some View {
     ScrollView {
-      LazyVStack(alignment: .leading, spacing: 8) {
+      LazyVStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
         ForEach(modifications) { modification in
           ModifiedTokenListItem(modification: modification, newVersionTokens: newVersionTokens, searchText: searchText)
         }
@@ -24,7 +24,7 @@ struct ModifiedTokenListItem: View {
   var searchText: String = ""
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
       headerSection
       changesSection
     }
@@ -44,7 +44,7 @@ struct ModifiedTokenListItem: View {
   }
   
   private var changesSection: some View {
-    VStack(alignment: .leading, spacing: 6) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
       ForEach(modification.colorChanges) { change in
         colorChangeRow(change: change)
       }
@@ -54,14 +54,14 @@ struct ModifiedTokenListItem: View {
   private func colorChangeRow(change: ColorChange) -> some View {
     let delta = ColorDeltaCalculator.calculateDelta(oldHex: change.oldColor, newHex: change.newColor)
     
-    return HStack(spacing: 8) {
+    return HStack(spacing: UIConstants.Spacing.medium) {
       Text("\(change.brandName) • \(change.theme):")
         .font(.caption)
         .fontWeight(.medium)
-        .frame(width: 100, alignment: .leading)
+        .frame(width: UIConstants.Size.colorLabelWidth, alignment: .leading)
       
       // Ancienne couleur
-      HStack(spacing: 4) {
+      HStack(spacing: UIConstants.Spacing.small) {
         ColorSquarePreview(color: Color(hex: change.oldColor))
         Text(change.oldColor)
           .font(.caption)
@@ -73,7 +73,7 @@ struct ModifiedTokenListItem: View {
         .foregroundStyle(.secondary)
       
       // Nouvelle couleur
-      HStack(spacing: 4) {
+      HStack(spacing: UIConstants.Spacing.small) {
         ColorSquarePreview(color: Color(hex: change.newColor))
         Text(change.newColor)
           .font(.caption)
@@ -97,17 +97,17 @@ struct ColorDeltaBadge: View {
     Button {
       showPopover.toggle()
     } label: {
-      HStack(spacing: 4) {
+      HStack(spacing: UIConstants.Spacing.small) {
         Circle()
           .fill(delta.classification.color)
-          .frame(width: 6, height: 6)
+          .frame(width: UIConstants.Spacing.medium, height: UIConstants.Spacing.medium)
         
         Text(delta.classification.rawValue)
           .font(.caption2)
           .foregroundStyle(delta.classification.color)
       }
-      .padding(.horizontal, 6)
-      .padding(.vertical, 3)
+      .padding(.horizontal, UIConstants.Spacing.medium)
+      .padding(.vertical, UIConstants.Spacing.extraSmall)
       .background(
         Capsule()
           .fill(delta.classification.color.opacity(0.15))
@@ -115,13 +115,13 @@ struct ColorDeltaBadge: View {
     }
     .buttonStyle(.plain)
     .popover(isPresented: $showPopover) {
-      VStack(alignment: .leading, spacing: 12) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
         Text("Détail du changement")
           .font(.headline)
         
         Divider()
         
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
           deltaRow(label: "Luminosité", value: delta.lightnessDelta, suffix: "%")
           deltaRow(label: "Saturation", value: delta.saturationDelta, suffix: "%")
           deltaRow(label: "Teinte", value: delta.hueDelta, suffix: "°")
@@ -157,7 +157,7 @@ struct ColorDeltaBadge: View {
       
       Spacer()
       
-      HStack(spacing: 2) {
+      HStack(spacing: UIConstants.Spacing.extraSmall) {
         if value > 0 {
           Image(systemName: "arrow.up")
             .font(.caption2)

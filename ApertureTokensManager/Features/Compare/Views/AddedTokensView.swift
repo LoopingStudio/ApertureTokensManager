@@ -6,7 +6,7 @@ struct AddedTokensView: View {
 
   var body: some View {
     ScrollView {
-      LazyVStack(alignment: .leading, spacing: 8) {
+      LazyVStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
         ForEach(tokens) { token in
           AddedTokenListItem(token: token, searchText: searchText)
         }
@@ -22,7 +22,7 @@ struct AddedTokenListItem: View {
   var searchText: String = ""
 
   var body: some View {
-    HStack(spacing: 12) {
+    HStack(spacing: UIConstants.Spacing.large) {
       TokenInfoHeader(name: token.name, path: token.path, searchText: searchText)
       Spacer()
       if let modes = token.modes {

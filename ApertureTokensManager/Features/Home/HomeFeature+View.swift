@@ -28,9 +28,11 @@ struct HomeView: View {
       TokenBrowserView(store: browserStore)
     }
   }
-  
-  // MARK: - Header
-  
+}
+
+// MARK: - Header
+
+extension HomeView {
   private var header: some View {
     HStack {
       Text("Accueil")
@@ -40,77 +42,40 @@ struct HomeView: View {
       Spacer()
       
       if store.designSystemBase != nil {
-        Menu {
-          Button(action: { send(.openFileButtonTapped) }) {
-            Label("Afficher dans le Finder", systemImage: "folder")
-          }
-          Divider()
-          Button(role: .destructive, action: { send(.clearBaseButtonTapped) }) {
-            Label("Supprimer la base", systemImage: "trash")
-          }
-        } label: {
-          Image(systemName: "ellipsis.circle")
-            .font(.title2)
-            .foregroundStyle(.secondary)
-        }
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
-        .fixedSize()
+        headerMenu
       }
     }
     .padding()
   }
   
-  // MARK: - Empty State
+  private var headerMenu: some View {
+    Menu {
+      Button(action: { send(.openFileButtonTapped) }) {
+        Label("Afficher dans le Finder", systemImage: "folder")
+      }
+      Divider()
+      Button(role: .destructive, action: { send(.clearBaseButtonTapped) }) {
+        Label("Supprimer la base", systemImage: "trash")
+      }
+    } label: {
+      Image(systemName: "ellipsis.circle")
+        .font(.title2)
+        .foregroundStyle(.secondary)
+    }
+    .menuStyle(.borderlessButton)
+    .menuIndicator(.hidden)
+    .fixedSize()
+  }
+}
 
+// MARK: - Empty State
+
+extension HomeView {
   private var emptyBaseContent: some View {
     VStack(spacing: UIConstants.Spacing.large) {
-      ZStack {
-        Circle()
-          .fill(Color.purple.opacity(0.1))
-          .frame(width: 120, height: 120)
-          .scaleEffect(iconPulse ? 1.1 : 1.0)
-        
-        Image(systemName: "square.stack.3d.up.slash")
-          .font(.system(size: 48))
-          .foregroundStyle(.purple.opacity(0.6))
-      }
-      .opacity(showEmptyContent ? 1 : 0)
-      .scaleEffect(showEmptyContent ? 1 : 0.8)
-      
-      VStack(spacing: UIConstants.Spacing.small) {
-        Text("Aucun Design System défini")
-          .font(.title2)
-          .fontWeight(.semibold)
-        
-        Text("Importez un fichier de tokens et définissez-le comme base\npour accéder à l'accueil.")
-          .font(.body)
-          .foregroundStyle(.secondary)
-          .multilineTextAlignment(.center)
-      }
-      .opacity(showEmptyContent ? 1 : 0)
-      .offset(y: showEmptyContent ? 0 : 10)
-      
-      Button {
-        send(.goToImportTapped)
-      } label: {
-        HStack(spacing: 6) {
-          Image(systemName: "arrow.right.circle.fill")
-            .foregroundStyle(.purple)
-          Text("Utilisez l'onglet Importer pour charger un Design System")
-        }
-        .font(.callout)
-        .foregroundStyle(.secondary)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(
-          Capsule()
-            .fill(Color.purple.opacity(0.1))
-        )
-        .opacity(showEmptyContent ? 1 : 0)
-        .offset(y: showEmptyContent ? 0 : 15)
-      }
-      .buttonStyle(.plain)
+      emptyStateIcon
+      emptyStateText
+      emptyStateButton
     }
     .padding(UIConstants.Spacing.extraLarge)
     .frame(maxHeight: .infinity)
@@ -124,8 +89,63 @@ struct HomeView: View {
     }
   }
   
-  // MARK: - Design System Base Content
+  private var emptyStateIcon: some View {
+    ZStack {
+      Circle()
+        .fill(Color.purple.opacity(0.1))
+        .frame(width: UIConstants.Size.emptyStateIconSize, height: UIConstants.Size.emptyStateIconSize)
+        .scaleEffect(iconPulse ? 1.1 : 1.0)
+      
+      Image(systemName: "square.stack.3d.up.slash")
+        .font(.system(size: UIConstants.Size.iconLarge))
+        .foregroundStyle(.purple.opacity(0.6))
+    }
+    .opacity(showEmptyContent ? 1 : 0)
+    .scaleEffect(showEmptyContent ? 1 : 0.8)
+  }
+  
+  private var emptyStateText: some View {
+    VStack(spacing: UIConstants.Spacing.small) {
+      Text("Aucun Design System défini")
+        .font(.title2)
+        .fontWeight(.semibold)
+      
+      Text("Importez un fichier de tokens et définissez-le comme base\npour accéder à l'accueil.")
+        .font(.body)
+        .foregroundStyle(.secondary)
+        .multilineTextAlignment(.center)
+    }
+    .opacity(showEmptyContent ? 1 : 0)
+    .offset(y: showEmptyContent ? 0 : 10)
+  }
+  
+  private var emptyStateButton: some View {
+    Button {
+      send(.goToImportTapped)
+    } label: {
+      HStack(spacing: UIConstants.Spacing.medium) {
+        Image(systemName: "arrow.right.circle.fill")
+          .foregroundStyle(.purple)
+        Text("Utilisez l'onglet Importer pour charger un Design System")
+      }
+      .font(.callout)
+      .foregroundStyle(.secondary)
+      .padding(.horizontal, UIConstants.Spacing.extraLarge)
+      .padding(.vertical, UIConstants.Spacing.large)
+      .background(
+        Capsule()
+          .fill(Color.purple.opacity(0.1))
+      )
+      .opacity(showEmptyContent ? 1 : 0)
+      .offset(y: showEmptyContent ? 0 : 15)
+    }
+    .buttonStyle(.plain)
+  }
+}
 
+// MARK: - Design System Content
+
+extension HomeView {
   private func designSystemBaseContent(_ base: DesignSystemBase) -> some View {
     ScrollView {
       VStack(spacing: UIConstants.Spacing.large) {
@@ -141,7 +161,6 @@ struct HomeView: View {
           .opacity(showActions ? 1 : 0)
           .offset(y: showActions ? 0 : 20)
         
-        // Historique unifié
         UnifiedHistoryView(
           items: store.unifiedHistory,
           filter: store.historyFilter,
@@ -151,77 +170,95 @@ struct HomeView: View {
         .opacity(showHistory ? 1 : 0)
         .offset(y: showHistory ? 0 : 25)
         
-        Spacer(minLength: 20)
+        Spacer(minLength: UIConstants.Spacing.xxLarge)
       }
       .padding(UIConstants.Spacing.large)
     }
-    .onAppear {
-      withAnimation(.easeOut(duration: 0.35)) {
-        showHeader = true
-      }
-      withAnimation(.easeOut(duration: 0.4).delay(0.1)) {
-        showStats = true
-      }
-      withAnimation(.easeOut(duration: 0.45).delay(0.2)) {
-        showActions = true
-      }
-      withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
-        showHistory = true
-      }
+    .onAppear { animateContentAppearance() }
+  }
+  
+  private func animateContentAppearance() {
+    withAnimation(.easeOut(duration: 0.35)) {
+      showHeader = true
+    }
+    withAnimation(.easeOut(duration: 0.4).delay(0.1)) {
+      showStats = true
+    }
+    withAnimation(.easeOut(duration: 0.45).delay(0.2)) {
+      showActions = true
+    }
+    withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
+      showHistory = true
     }
   }
+}
 
+// MARK: - Header Card
+
+extension HomeView {
   private func headerCard(_ base: DesignSystemBase) -> some View {
     HStack(spacing: UIConstants.Spacing.medium) {
-      ZStack {
-        Circle()
-          .fill(Color.green.opacity(0.15))
-          .frame(width: 56, height: 56)
-        
-        Image(systemName: "checkmark.seal.fill")
-          .font(.title)
-          .foregroundStyle(.green)
-      }
-      
-      VStack(alignment: .leading, spacing: 4) {
-        HStack(spacing: 8) {
-          Text("Design System Actif")
-            .font(.caption)
-            .fontWeight(.medium)
-            .foregroundStyle(.green)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
-            .background(
-              Capsule()
-                .fill(Color.green.opacity(0.15))
-            )
-        }
-        
-        Text(base.fileName)
-          .font(.title3)
-          .fontWeight(.semibold)
-          .lineLimit(1)
-        
-        if !base.metadata.version.isEmpty {
-          Text("Version \(base.metadata.version)")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        }
-      }
-      
+      headerCardIcon
+      headerCardInfo(base)
       Spacer()
     }
     .padding(UIConstants.Spacing.medium)
-    .background(
-      RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
-        .fill(Color.green.opacity(0.08))
-        .overlay(
-          RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
-            .stroke(Color.green.opacity(0.2), lineWidth: 1)
-        )
-    )
+    .background(headerCardBackground)
   }
+  
+  private var headerCardIcon: some View {
+    ZStack {
+      Circle()
+        .fill(Color.green.opacity(0.15))
+        .frame(width: UIConstants.Size.headerIconSize, height: UIConstants.Size.headerIconSize)
+      
+      Image(systemName: "checkmark.seal.fill")
+        .font(.title)
+        .foregroundStyle(.green)
+    }
+  }
+  
+  private func headerCardInfo(_ base: DesignSystemBase) -> some View {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
+      HStack(spacing: UIConstants.Spacing.medium) {
+        Text("Design System Actif")
+          .font(.caption)
+          .fontWeight(.medium)
+          .foregroundStyle(.green)
+          .padding(.horizontal, UIConstants.Spacing.medium)
+          .padding(.vertical, UIConstants.Spacing.extraSmall)
+          .background(
+            Capsule()
+              .fill(Color.green.opacity(0.15))
+          )
+      }
+      
+      Text(base.fileName)
+        .font(.title3)
+        .fontWeight(.semibold)
+        .lineLimit(1)
+      
+      if !base.metadata.version.isEmpty {
+        Text("Version \(base.metadata.version)")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
+    }
+  }
+  
+  private var headerCardBackground: some View {
+    RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
+      .fill(Color.green.opacity(0.08))
+      .overlay(
+        RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
+          .stroke(Color.green.opacity(0.2), lineWidth: 1)
+      )
+  }
+}
 
+// MARK: - Stats Section
+
+extension HomeView {
   private func statsSection(_ base: DesignSystemBase) -> some View {
     HStack(spacing: UIConstants.Spacing.medium) {
       StatCard(
@@ -253,7 +290,11 @@ struct HomeView: View {
       .staggeredAppear(index: 2)
     }
   }
+}
 
+// MARK: - Actions Section
+
+extension HomeView {
   private var actionsSection: some View {
     VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
       Text("Actions rapides")
@@ -278,97 +319,6 @@ struct HomeView: View {
   }
 }
 
-
-
-// MARK: - Export Action Card with Popover
-
-private struct ExportActionCard: View {
-  @Bindable var store: StoreOf<HomeFeature>
-  
-  var body: some View {
-    ActionCard(
-      title: "Exporter vers Xcode",
-      subtitle: "Générer XCAssets + Swift",
-      icon: "square.and.arrow.up.fill",
-      color: .blue
-    ) {
-      store.send(.view(.exportButtonTapped))
-    }
-    .popover(isPresented: $store.isExportPopoverPresented) {
-      exportPopoverContent
-    }
-  }
-  
-  @ViewBuilder
-  private var exportPopoverContent: some View {
-    VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
-      HStack {
-        Image(systemName: "gearshape.fill")
-          .foregroundStyle(.blue)
-        Text("Filtres d'export")
-          .font(.headline)
-      }
-      
-      Divider()
-      
-      VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
-        Toggle(isOn: $store.filters.excludeTokensStartingWithHash) {
-          HStack {
-            Image(systemName: "number")
-              .foregroundStyle(.orange)
-              .frame(width: 20)
-            Text("Exclure tokens commençant par #")
-          }
-        }
-        .toggleStyle(.checkbox)
-        
-        Toggle(isOn: $store.filters.excludeTokensEndingWithHover) {
-          HStack {
-            Image(systemName: "cursorarrow.click")
-              .foregroundStyle(.purple)
-              .frame(width: 20)
-            Text("Exclure tokens finissant par _hover")
-          }
-        }
-        .toggleStyle(.checkbox)
-        
-        Toggle(isOn: $store.filters.excludeUtilityGroup) {
-          HStack {
-            Image(systemName: "wrench.fill")
-              .foregroundStyle(.gray)
-              .frame(width: 20)
-            Text("Exclure groupe Utility")
-          }
-        }
-        .toggleStyle(.checkbox)
-      }
-      .font(.callout)
-      
-      Divider()
-      
-      HStack {
-        Button("Annuler") {
-          store.send(.view(.dismissExportPopover))
-        }
-        .buttonStyle(.bordered)
-        
-        Spacer()
-        
-        Button {
-          store.send(.view(.confirmExportButtonTapped))
-        } label: {
-          Label("Exporter", systemImage: "square.and.arrow.up")
-        }
-        .buttonStyle(.borderedProminent)
-      }
-    }
-    .padding()
-    .frame(width: 320)
-  }
-}
-
-
-
 // MARK: - Previews
 
 #if DEBUG
@@ -390,7 +340,7 @@ private struct ExportActionCard: View {
       HomeFeature()
     }
   )
-  .frame(width: 900, height: 600)
+  .frame(width: UIConstants.Size.windowMinWidth, height: UIConstants.Size.windowMinHeight)
 }
 
 #Preview("Empty") {
@@ -399,6 +349,6 @@ private struct ExportActionCard: View {
       HomeFeature()
     }
   )
-  .frame(width: 700, height: 500)
+  .frame(width: UIConstants.Size.windowMinWidth, height: UIConstants.Size.windowMinHeight)
 }
 #endif

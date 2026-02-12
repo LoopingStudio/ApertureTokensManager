@@ -20,11 +20,13 @@ struct CompareView: View {
     .animation(.easeInOut, value: store.oldFile.isLoaded && store.newFile.isLoaded)
     .animation(.easeInOut(duration: 0.25), value: store.selectedTab)
   }
+}
 
-  // MARK: - Header
+// MARK: - Header
 
+extension CompareView {
   private var header: some View {
-    VStack(spacing: 12) {
+    VStack(spacing: UIConstants.Spacing.large) {
       HStack {
         Text("Comparaison de Tokens")
           .font(.title)
@@ -33,18 +35,7 @@ struct CompareView: View {
         Spacer()
 
         if store.changes != nil {
-          HStack(spacing: 8) {
-            Button("Nouvelle Comparaison") { send(.resetComparison) }
-              .buttonStyle(.adaptiveGlass())
-              .controlSize(.small)
-            Button("Exporter pour Notion") { send(.exportToNotionTapped) }
-              .buttonStyle(.adaptiveGlassProminent)
-              .controlSize(.small)
-          }
-          .transition(.asymmetric(
-            insertion: .scale(scale: 0.9).combined(with: .opacity),
-            removal: .opacity
-          ))
+          headerActions
         }
       }
 
@@ -58,113 +49,137 @@ struct CompareView: View {
     }
     .padding()
   }
+  
+  private var headerActions: some View {
+    HStack(spacing: UIConstants.Spacing.medium) {
+      Button("Nouvelle Comparaison") { send(.resetComparison) }
+        .buttonStyle(.adaptiveGlass())
+        .controlSize(.small)
+      Button("Exporter pour Notion") { send(.exportToNotionTapped) }
+        .buttonStyle(.adaptiveGlassProminent)
+        .controlSize(.small)
+    }
+    .transition(.asymmetric(
+      insertion: .scale(scale: 0.9).combined(with: .opacity),
+      removal: .opacity
+    ))
+  }
+}
 
-  // MARK: - File Selection Area
+// MARK: - File Selection Area
 
+extension CompareView {
   private var fileSelectionArea: some View {
-    VStack(spacing: 24) {
-      HStack(spacing: 24) {
-        DropZone(
-          title: "Ancienne Version",
-          subtitle: "Glissez le fichier JSON de l'ancienne version ici",
-          isLoaded: store.oldFile.isLoaded,
-          isLoading: store.oldFile.isLoading,
-          primaryColor: .blue,
-          isFromBase: store.oldFile.isFromBase,
-          fileName: store.oldFile.fileName,
-          onDrop: { providers in
-            guard let provider = providers.first else { return false }
-            send(.fileDroppedWithProvider(.old, provider))
-            return true
-          },
-          onSelectFile: { send(.selectFileTapped(.old)) },
-          onRemove: store.oldFile.isLoaded ? { send(.removeFile(.old)) } : nil,
-          metadata: store.oldFile.metadata
-        )
-
-        VStack(spacing: 8) {
-          Image(systemName: "arrow.right")
-            .font(.title2)
-            .foregroundStyle(.secondary)
-
-          if store.oldFile.isLoaded && store.newFile.isLoaded {
-            Button {
-              send(.switchFiles)
-            } label: {
-              Image(systemName: "arrow.left.arrow.right")
-                .font(.caption)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .help("Échanger les fichiers")
-          }
-        }
-        .frame(width: 32)
-
-        DropZone(
-          title: "Nouvelle Version",
-          subtitle: "Glissez le fichier JSON de la nouvelle version ici",
-          isLoaded: store.newFile.isLoaded,
-          isLoading: store.newFile.isLoading,
-          primaryColor: .green,
-          fileName: store.newFile.fileName,
-          onDrop: { providers in
-            guard let provider = providers.first else { return false }
-            send(.fileDroppedWithProvider(.new, provider))
-            return true
-          },
-          onSelectFile: { send(.selectFileTapped(.new)) },
-          onRemove: store.newFile.isLoaded ? { send(.removeFile(.new)) } : nil,
-          metadata: store.newFile.metadata
-        )
-      }
-      .overlay(alignment: .bottom) {
-        if store.oldFile.isLoaded && store.newFile.isLoaded {
-          Button("Comparer les fichiers") {
-            send(.compareButtonTapped)
-          }
-          .buttonStyle(.adaptiveGlassProminent)
-          .controlSize(.large)
-          .offset(y: 48)
-          .transition(.push(from: .top).combined(with: .opacity))
-        }
-      }
-      
-      if !store.comparisonHistory.isEmpty && !store.oldFile.isLoaded && !store.newFile.isLoaded {
-        ComparisonHistoryView(
-          history: store.comparisonHistory,
-          onEntryTapped: { send(.historyEntryTapped($0)) },
-          onRemove: { send(.removeHistoryEntry($0)) },
-          onClear: { send(.clearHistory) }
-        )
-        .frame(maxWidth: 600)
-        .padding(.top, 16)
-      }
+    VStack(spacing: UIConstants.Spacing.section) {
+      fileDropZones
+      comparisonHistorySection
     }
     .padding()
     .frame(maxHeight: .infinity)
     .onAppear { send(.onAppear) }
   }
+  
+  private var fileDropZones: some View {
+    HStack(spacing: UIConstants.Spacing.section) {
+      oldFileDropZone
+      fileSwitchControls
+      newFileDropZone
+    }
+    .overlay(alignment: .bottom) {
+      if store.oldFile.isLoaded && store.newFile.isLoaded {
+        Button("Comparer les fichiers") {
+          send(.compareButtonTapped)
+        }
+        .buttonStyle(.adaptiveGlassProminent)
+        .controlSize(.large)
+        .offset(y: UIConstants.Size.buttonOffset)
+        .transition(.push(from: .top).combined(with: .opacity))
+      }
+    }
+  }
+  
+  private var oldFileDropZone: some View {
+    DropZone(
+      title: "Ancienne Version",
+      subtitle: "Glissez le fichier JSON de l'ancienne version ici",
+      isLoaded: store.oldFile.isLoaded,
+      isLoading: store.oldFile.isLoading,
+      primaryColor: .blue,
+      isFromBase: store.oldFile.isFromBase,
+      fileName: store.oldFile.fileName,
+      onDrop: { providers in
+        guard let provider = providers.first else { return false }
+        send(.fileDroppedWithProvider(.old, provider))
+        return true
+      },
+      onSelectFile: { send(.selectFileTapped(.old)) },
+      onRemove: store.oldFile.isLoaded ? { send(.removeFile(.old)) } : nil,
+      metadata: store.oldFile.metadata
+    )
+  }
+  
+  private var fileSwitchControls: some View {
+    VStack(spacing: UIConstants.Spacing.medium) {
+      Image(systemName: "arrow.right")
+        .font(.title2)
+        .foregroundStyle(.secondary)
 
-  // MARK: - Comparison Content
+      if store.oldFile.isLoaded && store.newFile.isLoaded {
+        Button {
+          send(.switchFiles)
+        } label: {
+          Image(systemName: "arrow.left.arrow.right")
+            .font(.caption)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .help("Échanger les fichiers")
+      }
+    }
+    .frame(width: UIConstants.Size.iconSmall)
+  }
+  
+  private var newFileDropZone: some View {
+    DropZone(
+      title: "Nouvelle Version",
+      subtitle: "Glissez le fichier JSON de la nouvelle version ici",
+      isLoaded: store.newFile.isLoaded,
+      isLoading: store.newFile.isLoading,
+      primaryColor: .green,
+      fileName: store.newFile.fileName,
+      onDrop: { providers in
+        guard let provider = providers.first else { return false }
+        send(.fileDroppedWithProvider(.new, provider))
+        return true
+      },
+      onSelectFile: { send(.selectFileTapped(.new)) },
+      onRemove: store.newFile.isLoaded ? { send(.removeFile(.new)) } : nil,
+      metadata: store.newFile.metadata
+    )
+  }
+  
+  @ViewBuilder
+  private var comparisonHistorySection: some View {
+    if !store.comparisonHistory.isEmpty && !store.oldFile.isLoaded && !store.newFile.isLoaded {
+      ComparisonHistoryView(
+        history: store.comparisonHistory,
+        onEntryTapped: { send(.historyEntryTapped($0)) },
+        onRemove: { send(.removeHistoryEntry($0)) },
+        onClear: { send(.clearHistory) }
+      )
+      .frame(maxWidth: UIConstants.Size.maxContentWidth)
+      .padding(.top, UIConstants.Spacing.extraLarge)
+    }
+  }
+}
 
+// MARK: - Comparison Content
+
+extension CompareView {
   private var comparisonContent: some View {
     VStack(spacing: 0) {
       tabs
-      
-      // Search field (only for list tabs)
-      if store.selectedTab != .overview {
-        SearchField(
-          text: $store.searchText,
-          placeholder: "Rechercher un token...",
-          resultCount: filteredCountForCurrentTab,
-          totalCount: totalCountForCurrentTab,
-          isFocused: $isSearchFocused
-        )
-        .padding(.horizontal)
-        .padding(.bottom, 8)
-      }
-      
+      searchFieldIfNeeded
       Divider()
       if let changes = store.changes {
         tabContent(for: store.selectedTab, changes: changes)
@@ -175,6 +190,21 @@ struct CompareView: View {
     }
     .animation(.spring(response: 0.35, dampingFraction: 0.85), value: store.selectedTab)
     .searchFocusShortcut($isSearchFocused)
+  }
+  
+  @ViewBuilder
+  private var searchFieldIfNeeded: some View {
+    if store.selectedTab != .overview {
+      SearchField(
+        text: $store.searchText,
+        placeholder: "Rechercher un token...",
+        resultCount: filteredCountForCurrentTab,
+        totalCount: totalCountForCurrentTab,
+        isFocused: $isSearchFocused
+      )
+      .padding(.horizontal)
+      .padding(.bottom, UIConstants.Spacing.medium)
+    }
   }
   
   private var filteredCountForCurrentTab: Int? {
@@ -196,44 +226,49 @@ struct CompareView: View {
     case .modified: return store.changes?.modified.count
     }
   }
+}
 
-  // MARK: - Tabs
+// MARK: - Tabs
 
+extension CompareView {
   private var tabs: some View {
     HStack {
       ForEach(CompareFeature.ComparisonTab.allCases, id: \.self) { tab in
-        Button {
-          send(.tabTapped(tab))
-        } label: {
-          VStack(spacing: 4) {
-            Text(tab.rawValue)
-              .font(.headline)
-              .foregroundStyle(store.selectedTab == tab ? .primary : .secondary)
-
-            if let changes = store.changes {
-              Text(countForTab(tab, changes: changes))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            }
-          }
-          .padding(.horizontal, 16)
-          .padding(.vertical, 8)
-          .contentShape(.rect)
-          .background {
-            if store.selectedTab == tab {
-              RoundedRectangle(cornerRadius: 8)
-                .fill(Color.accentColor.opacity(0.1))
-                .matchedGeometryEffect(id: "activeTab", in: tabNamespace)
-            }
-          }
-          .padding(.vertical, 8)
-        }
-        .buttonStyle(.plain)
+        tabButton(for: tab)
       }
-
       Spacer()
     }
     .padding(.horizontal)
+  }
+  
+  private func tabButton(for tab: CompareFeature.ComparisonTab) -> some View {
+    Button {
+      send(.tabTapped(tab))
+    } label: {
+      VStack(spacing: UIConstants.Spacing.small) {
+        Text(tab.rawValue)
+          .font(.headline)
+          .foregroundStyle(store.selectedTab == tab ? .primary : .secondary)
+
+        if let changes = store.changes {
+          Text(countForTab(tab, changes: changes))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+      }
+      .padding(.horizontal, UIConstants.Spacing.extraLarge)
+      .padding(.vertical, UIConstants.Spacing.medium)
+      .contentShape(.rect)
+      .background {
+        if store.selectedTab == tab {
+          RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
+            .fill(Color.accentColor.opacity(0.1))
+            .matchedGeometryEffect(id: "activeTab", in: tabNamespace)
+        }
+      }
+      .padding(.vertical, 8)
+    }
+    .buttonStyle(.plain)
   }
 
   private func countForTab(_ tab: CompareFeature.ComparisonTab, changes: ComparisonChanges) -> String {
@@ -244,9 +279,11 @@ struct CompareView: View {
     case .modified: "\(changes.modified.count)"
     }
   }
+}
 
-  // MARK: - Tab Content
+// MARK: - Tab Content
 
+extension CompareView {
   @ViewBuilder
   private func tabContent(for tab: CompareFeature.ComparisonTab, changes: ComparisonChanges) -> some View {
     switch tab {
@@ -287,6 +324,7 @@ struct CompareView: View {
     }
   }
 }
+
 // MARK: - Previews
 
 #if DEBUG
@@ -296,7 +334,7 @@ struct CompareView: View {
       CompareFeature()
     }
   )
-  .frame(width: 900, height: 600)
+  .frame(width: UIConstants.Size.windowMinWidth, height: UIConstants.Size.windowMinHeight)
 }
 
 #Preview("Files Loaded") {
@@ -329,7 +367,7 @@ struct CompareView: View {
       CompareFeature()
     }
   )
-  .frame(width: 900, height: 600)
+  .frame(width: UIConstants.Size.windowMinWidth, height: UIConstants.Size.windowMinHeight)
 }
 
 #Preview("Comparison Results") {
@@ -362,7 +400,7 @@ struct CompareView: View {
       CompareFeature()
     }
   )
-  .frame(width: 900, height: 600)
+  .frame(width: UIConstants.Size.windowMinWidth, height: UIConstants.Size.windowMinHeight)
 }
 
 #Preview("Removed Tokens with Suggestions") {
@@ -395,7 +433,6 @@ struct CompareView: View {
       CompareFeature()
     }
   )
-  .frame(width: 900, height: 600)
+  .frame(width: UIConstants.Size.windowMinWidth, height: UIConstants.Size.windowMinHeight)
 }
 #endif
-

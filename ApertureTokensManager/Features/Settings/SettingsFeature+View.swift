@@ -14,7 +14,7 @@ struct SettingsView: View {
     } detail: {
       detailContent
     }
-    .frame(minWidth: 700, minHeight: 450)
+    .frame(minWidth: UIConstants.Size.windowMinWidth, minHeight: UIConstants.Size.settingsMinHeight)
     .onAppear { send(.onAppear) }
     .toolbar {
       ToolbarItem(placement: .cancellationAction) {
@@ -34,10 +34,11 @@ struct SettingsView: View {
       Text("Cette action supprimera la base de design system, les historiques, les filtres et les paramètres. Cette action est irréversible.")
     }
   }
-  
-  // MARK: - Sidebar
-  
-  @ViewBuilder
+}
+
+// MARK: - Sidebar
+
+extension SettingsView {
   private var sidebarContent: some View {
     List(selection: $store.selectedSection.sending(\.view.sectionSelected)) {
       ForEach(SettingsFeature.SettingsSection.allCases, id: \.self) { section in
@@ -68,30 +69,24 @@ struct SettingsView: View {
       Image(systemName: "info.circle")
     }
   }
-  
-  // MARK: - Detail
-  
+}
+
+// MARK: - Detail Content
+
+extension SettingsView {
   @ViewBuilder
   private var detailContent: some View {
     switch store.selectedSection {
-    case .export:
-      exportSection
-    case .history:
-      historySection
-    case .data:
-      dataSection
-    case .logs:
-      logsSection
-    case .about:
-      aboutSection
+    case .export: exportSection
+    case .history: historySection
+    case .data: dataSection
+    case .logs: logsSection
+    case .about: aboutSection
     }
   }
   
-  // MARK: - Section Header
-  
-  @ViewBuilder
   private func sectionHeader(title: String, subtitle: String) -> some View {
-    VStack(alignment: .leading, spacing: 4) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
       Text(title)
         .font(.title2)
         .fontWeight(.semibold)
@@ -101,12 +96,13 @@ struct SettingsView: View {
         .foregroundStyle(.secondary)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(.bottom, 8)
+    .padding(.bottom, UIConstants.Spacing.medium)
   }
-  
-  // MARK: - Export Section
-  
-  @ViewBuilder
+}
+
+// MARK: - Export Section
+
+extension SettingsView {
   private var exportSection: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 16) {
@@ -116,9 +112,9 @@ struct SettingsView: View {
         )
         
         GroupBox("Filtres par pattern") {
-          VStack(alignment: .leading, spacing: 12) {
+          VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
             Toggle(isOn: $store.tokenFilters.excludeTokensStartingWithHash) {
-              VStack(alignment: .leading, spacing: 4) {
+              VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
                 Text("Exclure tokens commençant par #")
                 Text("Exclut les tokens primitifs (ex: #blue-500)")
                   .font(.caption)
@@ -129,7 +125,7 @@ struct SettingsView: View {
             Divider()
             
             Toggle(isOn: $store.tokenFilters.excludeTokensEndingWithHover) {
-              VStack(alignment: .leading, spacing: 4) {
+              VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
                 Text("Exclure tokens finissant par _hover")
                 Text("Exclut les états hover des tokens")
                   .font(.caption)
@@ -137,7 +133,7 @@ struct SettingsView: View {
               }
             }
           }
-          .padding(.vertical, 8)
+          .padding(.vertical, UIConstants.Spacing.medium)
         }
         
         GroupBox("Filtres par groupe") {
@@ -149,16 +145,17 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
             }
           }
-          .padding(.vertical, 8)
+          .padding(.vertical, UIConstants.Spacing.medium)
         }
       }
       .padding()
     }
   }
-  
-  // MARK: - History Section
-  
-  @ViewBuilder
+}
+
+// MARK: - History Section
+
+extension SettingsView {
   private var historySection: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 16) {
@@ -177,11 +174,11 @@ struct SettingsView: View {
                 .monospacedDigit()
             }
           }
-          .padding(.vertical, 8)
+          .padding(.vertical, UIConstants.Spacing.medium)
         }
         
         GroupBox("Statistiques actuelles") {
-          VStack(spacing: 12) {
+          VStack(spacing: UIConstants.Spacing.large) {
             HStack {
               Text("Imports")
               Spacer()
@@ -200,16 +197,17 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
             }
           }
-          .padding(.vertical, 8)
+          .padding(.vertical, UIConstants.Spacing.medium)
         }
       }
       .padding()
     }
   }
-  
-  // MARK: - Data Section
-  
-  @ViewBuilder
+}
+
+// MARK: - Data Section
+
+extension SettingsView {
   private var dataSection: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 16) {
@@ -225,11 +223,11 @@ struct SettingsView: View {
             Label("Ouvrir le dossier de données", systemImage: "folder")
           }
           .buttonStyle(.adaptiveGlass(.regular))
-          .padding(.vertical, 8)
+          .padding(.vertical, UIConstants.Spacing.medium)
         }
         
         GroupBox("Réinitialisation") {
-          VStack(alignment: .leading, spacing: 12) {
+          VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
             Text("Réinitialiser toutes les données")
               .font(.headline)
             
@@ -255,100 +253,109 @@ struct SettingsView: View {
             }
             .buttonStyle(.adaptiveGlass(.regular.tint(.red)))
           }
-          .padding(.vertical, 8)
+          .padding(.vertical, UIConstants.Spacing.medium)
         }
       }
       .padding()
     }
   }
-  
-  // MARK: - Logs Section
-  
-  @ViewBuilder
+}
+
+// MARK: - Logs Section
+
+extension SettingsView {
   private var logsSection: some View {
     VStack(alignment: .leading, spacing: 0) {
-      // Header
-      VStack(alignment: .leading, spacing: 16) {
-        HStack {
-          sectionHeader(
-            title: "Journal d'activité",
-            subtitle: "Consultez les événements et actions récentes de l'application."
-          )
-          
-          Spacer()
-          
-          Text("\(store.logCount) entrées")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        }
-        
-        HStack(spacing: 8) {
-          Button {
-            send(.refreshLogsButtonTapped)
-          } label: {
-            Label("Actualiser", systemImage: "arrow.clockwise")
-          }
-          .buttonStyle(.adaptiveGlass(.regular))
-          .disabled(store.isLoadingLogs)
-          
-          Button {
-            send(.clearLogsButtonTapped)
-          } label: {
-            Label("Vider", systemImage: "trash")
-          }
-          .buttonStyle(.adaptiveGlass(.regular.tint(.red)))
-          .disabled(store.logEntries.isEmpty)
-          
-          Button {
-            send(.exportLogsButtonTapped)
-          } label: {
-            Label("Exporter", systemImage: "square.and.arrow.up")
-          }
-          .buttonStyle(.adaptiveGlass(.regular.tint(.blue)))
-          .disabled(store.logEntries.isEmpty || store.isExportingLogs)
-        }
-      }
-      .padding()
+      logsHeader
       
       Divider()
       
-      // Log List
-      if store.isLoadingLogs {
-        ProgressView("Chargement des logs...")
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-      } else if store.logEntries.isEmpty {
-        ContentUnavailableView {
-          Label("Aucun log", systemImage: "doc.text")
-        } description: {
-          Text("Les logs apparaîtront ici au fur et à mesure de l'utilisation de l'application.")
+      logsContent
+    }
+  }
+  
+  private var logsHeader: some View {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.extraLarge) {
+      HStack {
+        sectionHeader(
+          title: "Journal d'activité",
+          subtitle: "Consultez les événements et actions récentes de l'application."
+        )
+        
+        Spacer()
+        
+        Text("\(store.logCount) entrées")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
+      
+      HStack(spacing: UIConstants.Spacing.medium) {
+        Button {
+          send(.refreshLogsButtonTapped)
+        } label: {
+          Label("Actualiser", systemImage: "arrow.clockwise")
         }
-        .frame(maxHeight: .infinity)
-      } else {
-        ScrollViewReader { proxy in
-          List(store.logEntries) { entry in
-            LogEntryRow(entry: entry)
-              .id(entry.id)
-          }
-          .listStyle(.plain)
-          .onAppear {
-            if let lastEntry = store.logEntries.last {
-              proxy.scrollTo(lastEntry.id, anchor: .bottom)
-            }
+        .buttonStyle(.adaptiveGlass(.regular))
+        .disabled(store.isLoadingLogs)
+        
+        Button {
+          send(.clearLogsButtonTapped)
+        } label: {
+          Label("Vider", systemImage: "trash")
+        }
+        .buttonStyle(.adaptiveGlass(.regular.tint(.red)))
+        .disabled(store.logEntries.isEmpty)
+        
+        Button {
+          send(.exportLogsButtonTapped)
+        } label: {
+          Label("Exporter", systemImage: "square.and.arrow.up")
+        }
+        .buttonStyle(.adaptiveGlass(.regular.tint(.blue)))
+        .disabled(store.logEntries.isEmpty || store.isExportingLogs)
+      }
+    }
+    .padding()
+  }
+  
+  @ViewBuilder
+  private var logsContent: some View {
+    if store.isLoadingLogs {
+      ProgressView("Chargement des logs...")
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    } else if store.logEntries.isEmpty {
+      ContentUnavailableView {
+        Label("Aucun log", systemImage: "doc.text")
+      } description: {
+        Text("Les logs apparaîtront ici au fur et à mesure de l'utilisation de l'application.")
+      }
+      .frame(maxHeight: .infinity)
+    } else {
+      ScrollViewReader { proxy in
+        List(store.logEntries) { entry in
+          LogEntryRow(entry: entry)
+            .id(entry.id)
+        }
+        .listStyle(.plain)
+        .onAppear {
+          if let lastEntry = store.logEntries.last {
+            proxy.scrollTo(lastEntry.id, anchor: .bottom)
           }
         }
       }
     }
   }
-  
-  // MARK: - About Section
-  
-  @ViewBuilder
+}
+
+// MARK: - About Section
+
+extension SettingsView {
   private var aboutSection: some View {
-    VStack(spacing: 24) {
+    VStack(spacing: UIConstants.Spacing.section) {
       Spacer()
       
       Image(systemName: "paintpalette.fill")
-        .font(.system(size: 64))
+        .font(.system(size: UIConstants.Size.colorSquare))
         .foregroundStyle(.tint)
       
       Text("Aperture Tokens Manager")
@@ -360,16 +367,15 @@ struct SettingsView: View {
         .foregroundStyle(.secondary)
       
       Divider()
-        .frame(width: 200)
+        .frame(width: UIConstants.Size.dividerWidth)
       
-      VStack(spacing: 8) {
+      VStack(spacing: UIConstants.Spacing.medium) {
         Text("Gérez vos design tokens Figma")
         Text("Importez, comparez, analysez et exportez")
       }
       .font(.body)
       .foregroundStyle(.secondary)
       
-      // Tutorial button
       Button {
         send(.openTutorialButtonTapped)
       } label: {
@@ -385,72 +391,6 @@ struct SettingsView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .padding()
-  }
-}
-
-// MARK: - Log Entry Row
-
-struct LogEntryRow: View {
-  let entry: LogEntry
-  
-  var body: some View {
-    HStack(alignment: .top, spacing: 8) {
-      // Level indicator
-      Text(entry.level.emoji)
-        .font(.system(size: 12))
-      
-      // Timestamp
-      Text(formattedTime)
-        .font(.caption.monospaced())
-        .foregroundStyle(.secondary)
-        .frame(width: 80, alignment: .leading)
-      
-      // Feature badge
-      Text(entry.feature)
-        .font(.caption2)
-        .padding(.horizontal, 6)
-        .padding(.vertical, 2)
-        .background(featureColor.opacity(0.2))
-        .foregroundStyle(featureColor)
-        .clipShape(Capsule())
-      
-      // Message
-      Text(entry.message)
-        .font(.caption.monospaced())
-        .foregroundStyle(messageColor)
-        .lineLimit(2)
-      
-      Spacer()
-    }
-    .padding(.vertical, 2)
-  }
-  
-  private var formattedTime: String {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "HH:mm:ss.SSS"
-    return formatter.string(from: entry.timestamp)
-  }
-  
-  private var featureColor: Color {
-    switch entry.feature.lowercased() {
-    case "import": return .blue
-    case "compare": return .purple
-    case "analysis": return .orange
-    case "export": return .green
-    case "file": return .cyan
-    case "home": return .indigo
-    default: return .gray
-    }
-  }
-  
-  private var messageColor: Color {
-    switch entry.level {
-    case .error: return .red
-    case .warning: return .orange
-    case .success: return .green
-    case .debug: return .secondary
-    case .info: return .primary
-    }
   }
 }
 

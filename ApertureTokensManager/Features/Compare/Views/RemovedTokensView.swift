@@ -11,7 +11,7 @@ struct RemovedTokensView: View {
   
   var body: some View {
     ScrollView {
-      LazyVStack(alignment: .leading, spacing: 8) {
+      LazyVStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
         ForEach(tokens) { token in
           RemovedTokenListItem(
             token: token,
@@ -57,8 +57,8 @@ struct RemovedTokenListItem: View {
   }
 
   var body: some View {
-    HStack(alignment: .top, spacing: 12) {
-      VStack(alignment: .leading, spacing: 4) {
+    HStack(alignment: .top, spacing: UIConstants.Spacing.large) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
         TokenInfoHeader(name: token.name, path: token.path, searchText: searchText)
 
         ReplacementSection(
@@ -74,9 +74,9 @@ struct RemovedTokenListItem: View {
 
       Spacer()
 
-      VStack(alignment: .trailing, spacing: 8) {
+      VStack(alignment: .trailing, spacing: UIConstants.Spacing.medium) {
         if let modes = token.modes {
-          VStack(alignment: .trailing, spacing: 4) {
+          VStack(alignment: .trailing, spacing: UIConstants.Spacing.small) {
             Text("Couleurs supprimées")
               .font(.caption2)
               .foregroundStyle(.secondary)
@@ -88,7 +88,7 @@ struct RemovedTokenListItem: View {
            let suggestedToken = TokenHelpers.findTokenByPath(suggestedPath, in: newVersionTokens),
            let modes = suggestedToken.modes {
 
-          VStack(alignment: .trailing, spacing: 4) {
+          VStack(alignment: .trailing, spacing: UIConstants.Spacing.small) {
             Text("Nouvelles couleurs")
               .font(.caption2)
               .foregroundStyle(.green)
@@ -96,7 +96,7 @@ struct RemovedTokenListItem: View {
 
             CompactColorPreview(modes: modes, shouldShowLabels: false)
           }
-          .padding(.top, 6)
+          .padding(.top, UIConstants.Spacing.medium)
         }
       }
 
@@ -118,7 +118,7 @@ struct ReplacementSection: View {
   let onRejectAutoSuggestion: (String) -> Void
   
   var body: some View {
-    HStack(spacing: 6) {
+    HStack(spacing: UIConstants.Spacing.medium) {
       if let suggestion = changes?.getSuggestion(for: removedToken.path) {
         // Suggestion manuelle acceptée
         acceptedSuggestionView(suggestion: suggestion)
@@ -135,7 +135,7 @@ struct ReplacementSection: View {
   // MARK: - Accepted Suggestion (Manual)
   
   private func acceptedSuggestionView(suggestion: ReplacementSuggestion) -> some View {
-    HStack(spacing: 4) {
+    HStack(spacing: UIConstants.Spacing.small) {
       Image(systemName: "checkmark.circle.fill")
         .font(.caption2)
         .foregroundStyle(.green)
@@ -154,16 +154,16 @@ struct ReplacementSection: View {
       }
       .buttonStyle(.plain)
     }
-    .padding(.horizontal, 6)
-    .padding(.vertical, 2)
+    .padding(.horizontal, UIConstants.Spacing.medium)
+    .padding(.vertical, UIConstants.Spacing.extraSmall)
     .background(.green.opacity(0.1))
-    .clipShape(RoundedRectangle(cornerRadius: 4))
+    .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.small))
   }
   
   // MARK: - Auto Suggestion (Pending)
   
   private func autoSuggestionView(suggestion: AutoSuggestion) -> some View {
-    HStack(spacing: 6) {
+    HStack(spacing: UIConstants.Spacing.medium) {
       // Indicateur de confiance
       ConfidenceIndicator(confidence: suggestion.confidence)
       
@@ -173,7 +173,7 @@ struct ReplacementSection: View {
         .lineLimit(1)
       
       // Boutons accepter/rejeter
-      HStack(spacing: 2) {
+      HStack(spacing: UIConstants.Spacing.extraSmall) {
         Button {
           onAcceptAutoSuggestion(removedToken.path)
         } label: {
@@ -195,10 +195,10 @@ struct ReplacementSection: View {
         .help("Rejeter cette suggestion")
       }
     }
-    .padding(.horizontal, 8)
-    .padding(.vertical, 4)
+    .padding(.horizontal, UIConstants.Spacing.medium)
+    .padding(.vertical, UIConstants.Spacing.small)
     .background(confidenceBackgroundColor(suggestion.confidence))
-    .clipShape(RoundedRectangle(cornerRadius: 6))
+    .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium))
   }
   
   private func confidenceBackgroundColor(_ confidence: Double) -> Color {
@@ -226,7 +226,7 @@ struct ReplacementSection: View {
           }
         }
       } label: {
-        HStack(spacing: 4) {
+        HStack(spacing: UIConstants.Spacing.small) {
           Image(systemName: "plus")
           Text("Suggérer")
         }
@@ -234,10 +234,10 @@ struct ReplacementSection: View {
         .foregroundStyle(.blue)
       }
       .buttonStyle(.plain)
-      .padding(.horizontal, 6)
-      .padding(.vertical, 2)
+      .padding(.horizontal, UIConstants.Spacing.medium)
+      .padding(.vertical, UIConstants.Spacing.extraSmall)
       .background(.blue.opacity(0.1))
-      .clipShape(RoundedRectangle(cornerRadius: 4))
+      .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.small))
     }
   }
 }
@@ -248,7 +248,7 @@ struct ConfidenceIndicator: View {
   let confidence: Double
   
   var body: some View {
-    HStack(spacing: 3) {
+    HStack(spacing: UIConstants.Spacing.extraSmall) {
       Image(systemName: confidenceIcon)
         .font(.caption2)
       Text("\(Int(confidence * 100))%")

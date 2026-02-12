@@ -17,9 +17,11 @@ extension HomeFeature {
     case .confirmExportButtonTapped:
       guard let base = state.designSystemBase else { return .none }
       state.isExportPopoverPresented = false
-      let tokenCount = TokenHelpers.countLeafTokens(base.tokens)
-      return .run { [tokens = base.tokens] send in
-        try await exportClient.exportDesignSystem(tokens)
+      // Appliquer les filtres avant l'export
+      let filteredTokens = TokenHelpers.applyFilters(state.filters, to: base.tokens)
+      let tokenCount = TokenHelpers.countLeafTokens(filteredTokens)
+      return .run { send in
+        try await exportClient.exportDesignSystem(filteredTokens)
         await send(.analytics(.exportCompleted(tokenCount: tokenCount)))
       } catch: { error, send in
         await send(.analytics(.exportFailed(error: error.localizedDescription)))

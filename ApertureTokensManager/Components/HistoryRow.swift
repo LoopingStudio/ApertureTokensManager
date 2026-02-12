@@ -23,7 +23,7 @@ struct HistoryRow<Content: View, Icon: View>: View {
   }
   
   var body: some View {
-    HStack(spacing: 10) {
+    HStack(spacing: UIConstants.Spacing.extraLarge) {
       icon()
         .scaleEffect(isHovering ? 1.1 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isHovering)
@@ -34,10 +34,10 @@ struct HistoryRow<Content: View, Icon: View>: View {
       
       removeButton
     }
-    .padding(.horizontal, 10)
-    .padding(.vertical, 8)
+    .padding(.horizontal, UIConstants.Spacing.extraLarge)
+    .padding(.vertical, UIConstants.Spacing.medium)
     .background(
-      RoundedRectangle(cornerRadius: 8)
+      RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
         .fill(isHovering ? Color.accentColor.opacity(0.1) : Color.clear)
     )
     .scaleEffect(isPressed ? 0.98 : 1.0)
@@ -66,7 +66,8 @@ struct HistoryRow<Content: View, Icon: View>: View {
     withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
       isPressed = true
     }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+    Task {
+      try? await Task.sleep(for: .milliseconds(100))
       withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
         isPressed = false
       }
@@ -86,7 +87,7 @@ struct HistorySection<Content: View>: View {
   @ViewBuilder let content: () -> Content
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
       header
       
       if isEmpty {
@@ -100,7 +101,7 @@ struct HistorySection<Content: View>: View {
     }
     .padding()
     .background(
-      RoundedRectangle(cornerRadius: 12)
+      RoundedRectangle(cornerRadius: UIConstants.CornerRadius.xxLarge)
         .fill(Color(nsColor: .controlBackgroundColor))
     )
     .animation(.easeInOut(duration: 0.25), value: isEmpty)
@@ -117,7 +118,7 @@ struct HistorySection<Content: View>: View {
       
       if !isEmpty {
         Button("Effacer") {
-          withAnimation(.easeOut(duration: 0.2)) {
+          withAnimation(.easeOut(duration: AnimationDuration.normal)) {
             onClear()
           }
         }
@@ -134,20 +135,20 @@ struct HistorySection<Content: View>: View {
       .font(.caption)
       .foregroundStyle(.tertiary)
       .frame(maxWidth: .infinity, alignment: .center)
-      .padding(.vertical, 8)
+      .padding(.vertical, UIConstants.Spacing.medium)
       .transition(.opacity.combined(with: .scale(scale: 0.95)))
   }
 }
 
 #if DEBUG
 #Preview("HistoryRow") {
-  VStack(spacing: 8) {
+  VStack(spacing: UIConstants.Spacing.medium) {
     HistoryRow {
       Image(systemName: "doc.fill")
         .font(.title3)
         .foregroundStyle(.purple)
     } content: {
-      VStack(alignment: .leading, spacing: 2) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.extraSmall) {
         Text("aperture-tokens.json")
           .font(.subheadline)
           .fontWeight(.medium)
@@ -166,7 +167,7 @@ struct HistorySection<Content: View>: View {
         .font(.title3)
         .foregroundStyle(.blue)
     } content: {
-      VStack(alignment: .leading, spacing: 2) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.extraSmall) {
         Text("v1.0 → v2.0")
           .font(.subheadline)
           .fontWeight(.medium)
@@ -181,6 +182,6 @@ struct HistorySection<Content: View>: View {
     }
   }
   .padding()
-  .frame(width: 400)
+  .frame(width: UIConstants.Size.previewWidth)
 }
 #endif

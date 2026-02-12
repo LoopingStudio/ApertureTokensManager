@@ -11,10 +11,10 @@ struct TokenBadge: View {
       .font(.caption)
       .fontWeight(.semibold)
       .foregroundStyle(.white)
-      .padding(.horizontal, 8)
-      .padding(.vertical, 4)
+      .padding(.horizontal, UIConstants.Spacing.medium)
+      .padding(.vertical, UIConstants.Spacing.small)
       .background(color)
-      .clipShape(RoundedRectangle(cornerRadius: 4))
+      .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.small))
   }
 }
 
@@ -30,11 +30,11 @@ struct ColorSquarePreview: View {
   }
 
   var body: some View {
-    RoundedRectangle(cornerRadius: 4)
+    RoundedRectangle(cornerRadius: UIConstants.CornerRadius.small)
       .fill(color)
       .frame(width: size, height: size)
       .overlay(
-        RoundedRectangle(cornerRadius: 4)
+        RoundedRectangle(cornerRadius: UIConstants.CornerRadius.small)
           .stroke(Color.secondary.opacity(0.3), lineWidth: 0.5)
       )
   }
@@ -49,11 +49,11 @@ struct ColorSquareWithPopover: View {
   @State private var isHovering = false
 
   var body: some View {
-    RoundedRectangle(cornerRadius: 4)
+    RoundedRectangle(cornerRadius: UIConstants.CornerRadius.small)
       .fill(Color(hex: value.hex))
-      .frame(width: 24, height: 24)
+      .frame(width: UIConstants.Size.colorSquareSmall, height: UIConstants.Size.colorSquareSmall)
       .overlay(
-        RoundedRectangle(cornerRadius: 4)
+        RoundedRectangle(cornerRadius: UIConstants.CornerRadius.small)
           .stroke(Color.primary.opacity(isHovering ? 0.4 : 0), lineWidth: 1.5)
       )
       .overlay(
@@ -75,22 +75,22 @@ struct ColorSquareWithPopover: View {
   }
 
   private var colorDetailPopover: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
       Text("Détails de la couleur")
         .font(.headline)
         .fontWeight(.semibold)
 
-      HStack(spacing: 12) {
-        RoundedRectangle(cornerRadius: 6)
+      HStack(spacing: UIConstants.Spacing.large) {
+        RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium)
           .fill(Color(hex: value.hex))
-          .frame(width: 50, height: 50)
+          .frame(width: UIConstants.Size.colorSquareMedium, height: UIConstants.Size.colorSquareMedium)
           .overlay(
-            RoundedRectangle(cornerRadius: 6)
+            RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium)
               .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
           )
 
-        VStack(alignment: .leading, spacing: 6) {
-          VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
+          VStack(alignment: .leading, spacing: UIConstants.Spacing.extraSmall) {
             Text("Hex")
               .font(.caption)
               .fontWeight(.medium)
@@ -102,7 +102,7 @@ struct ColorSquareWithPopover: View {
               .textSelection(.enabled)
           }
 
-          VStack(alignment: .leading, spacing: 2) {
+          VStack(alignment: .leading, spacing: UIConstants.Spacing.extraSmall) {
             Text("Primitive")
               .font(.caption)
               .fontWeight(.medium)
@@ -118,7 +118,7 @@ struct ColorSquareWithPopover: View {
       }
     }
     .padding()
-    .frame(width: 320)
+    .frame(width: UIConstants.Size.popoverWidth)
   }
 }
 
@@ -134,17 +134,17 @@ struct CompactColorPreview: View {
   }
 
   var body: some View {
-    HStack(spacing: 8) {
+    HStack(spacing: UIConstants.Spacing.medium) {
       // Legacy colors
       if let legacy = modes.legacy {
-        VStack(spacing: 4) {
+        VStack(spacing: UIConstants.Spacing.small) {
           if shouldShowLabels {
             Text("Legacy")
               .font(.caption2)
               .foregroundStyle(.secondary)
           }
 
-          HStack(spacing: 3) {
+          HStack(spacing: UIConstants.Spacing.extraSmall) {
             if let light = legacy.light {
               ColorSquareWithPopover(value: light, label: "L")
             }
@@ -153,19 +153,19 @@ struct CompactColorPreview: View {
             }
           }
         }
-        .frame(minWidth: 50)
+        .frame(minWidth: UIConstants.Size.colorSquareMedium)
       }
 
       // New Brand colors
       if let newBrand = modes.newBrand {
-        VStack(spacing: 4) {
+        VStack(spacing: UIConstants.Spacing.small) {
           if shouldShowLabels {
             Text("New Brand")
               .font(.caption2)
               .foregroundStyle(.secondary)
           }
 
-          HStack(spacing: 3) {
+          HStack(spacing: UIConstants.Spacing.extraSmall) {
             if let light = newBrand.light {
               ColorSquareWithPopover(value: light, label: "L")
             }
@@ -174,7 +174,7 @@ struct CompactColorPreview: View {
             }
           }
         }
-        .frame(minWidth: 50)
+        .frame(minWidth: UIConstants.Size.colorSquareMedium)
       }
     }
   }
@@ -187,7 +187,7 @@ extension View {
     self
       .padding()
       .background(
-        RoundedRectangle(cornerRadius: 8)
+        RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
           .fill(Color(nsColor: .controlBackgroundColor))
       )
   }
@@ -201,7 +201,7 @@ struct TokenInfoHeader: View {
   var searchText: String = ""
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 4) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
       highlightedName
         .font(.subheadline)
         .fontWeight(.medium)
@@ -219,4 +219,3 @@ struct TokenInfoHeader: View {
     TokenTreeSearchHelper.highlightedText(path, searchText: searchText, baseColor: .secondary)
   }
 }
-

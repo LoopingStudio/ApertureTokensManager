@@ -30,7 +30,7 @@ struct ImportView: View {
   }
 
   private var header: some View {
-    VStack(spacing: 12) {
+    VStack(spacing: UIConstants.Spacing.large) {
       HStack {
         Text("Aperture Tokens Viewer")
           .font(.title)
@@ -73,7 +73,7 @@ struct ImportView: View {
           
           Spacer()
         }
-        .padding(.top, 4)
+        .padding(.top, UIConstants.Spacing.small)
       }
       
       if let errorMessage = store.errorMessage {
@@ -101,15 +101,15 @@ struct ImportView: View {
   private var setAsBaseButton: some View {
     if isCurrentImportTheBase {
       // L'import actuel est déjà la base - afficher un indicateur
-      HStack(spacing: 4) {
+      HStack(spacing: UIConstants.Spacing.small) {
         Image(systemName: "checkmark.seal.fill")
           .foregroundStyle(.green)
         Text("Base actuelle")
           .foregroundStyle(.secondary)
       }
       .font(.callout)
-      .padding(.horizontal, 12)
-      .padding(.vertical, 6)
+      .padding(.horizontal, UIConstants.Spacing.large)
+      .padding(.vertical, UIConstants.Spacing.medium)
       .background(
         Capsule()
           .fill(Color.green.opacity(0.1))
@@ -130,8 +130,30 @@ struct ImportView: View {
     }
   }
   
+  private var figmaPluginLink: some View {
+    Link(destination: TutorialConstants.figmaPluginURL) {
+      HStack(spacing: UIConstants.Spacing.medium) {
+        Image(systemName: "puzzlepiece.extension")
+          .font(.body)
+        Text("Obtenir le plugin Figma")
+          .font(.callout)
+        Image(systemName: "arrow.up.right")
+          .font(.caption)
+      }
+      .foregroundStyle(.purple)
+    }
+    .buttonStyle(.plain)
+    .onHover { isHovered in
+      if isHovered {
+        NSCursor.pointingHand.push()
+      } else {
+        NSCursor.pop()
+      }
+    }
+  }
+  
   private var fileSelectionArea: some View {
-    VStack(spacing: 24) {
+    VStack(spacing: UIConstants.Spacing.section) {
       DropZone(
         title: "Fichier de Tokens",
         subtitle: "Glissez votre fichier JSON ici ou cliquez pour le sélectionner",
@@ -149,6 +171,8 @@ struct ImportView: View {
         metadata: store.metadata
       )
       
+      figmaPluginLink
+      
       if !store.importHistory.isEmpty {
         ImportHistoryView(
           history: store.importHistory,
@@ -156,7 +180,7 @@ struct ImportView: View {
           onRemove: { send(.removeHistoryEntry($0)) },
           onClear: { send(.clearHistory) }
         )
-        .frame(maxWidth: 500)
+        .frame(maxWidth: UIConstants.Size.historyMaxWidth)
       }
     }
     .padding()
@@ -167,10 +191,10 @@ struct ImportView: View {
   private var contentView: some View {
     HSplitView {
       nodesView
-        .frame(minWidth: 250, maxHeight: .infinity)
+        .frame(minWidth: UIConstants.Size.splitViewMinWidth, maxHeight: .infinity)
       
       rightView
-        .frame(minWidth: 400, idealWidth: 600, maxHeight: .infinity)
+        .frame(minWidth: UIConstants.Size.previewWidth, idealWidth: UIConstants.Size.splitViewIdealWidth, maxHeight: .infinity)
     }
   }
 
@@ -249,13 +273,14 @@ struct ImportView: View {
       ImportFeature()
     }
   )
-  .frame(width: 800, height: 600)
+  .frame(width: UIConstants.Size.windowMinWidth, height: UIConstants.Size.windowMinHeight)
 }
 
 #Preview("With File Loaded") {
   ImportView(
     store: Store(initialState: ImportFeature.State(
       rootNodes: PreviewData.rootNodes,
+      originalRootNodes: PreviewData.rootNodes,
       isFileLoaded: true,
       isLoading: false,
       loadingError: false,
@@ -263,19 +288,20 @@ struct ImportView: View {
       metadata: PreviewData.metadata,
       selectedNode: PreviewData.singleToken,
       expandedNodes: [PreviewData.colorsGroup.id, PreviewData.brandGroup.id],
-      allNodes: [],
+
       currentFileURL: nil
     )) {
       ImportFeature()
     }
   )
-  .frame(width: 900, height: 600)
+  .frame(width: UIConstants.Size.windowMinWidth, height: UIConstants.Size.windowMinHeight)
 }
 
 #Preview("Loading State") {
   ImportView(
     store: Store(initialState: ImportFeature.State(
       rootNodes: [],
+      originalRootNodes: [],
       isFileLoaded: false,
       isLoading: true,
       loadingError: false,
@@ -283,13 +309,13 @@ struct ImportView: View {
       metadata: nil,
       selectedNode: nil,
       expandedNodes: [],
-      allNodes: [],
+
       currentFileURL: nil
     )) {
       ImportFeature()
     }
   )
-  .frame(width: 800, height: 600)
+  .frame(width: UIConstants.Size.windowMinWidth, height: UIConstants.Size.windowMinHeight)
 }
 #endif
 

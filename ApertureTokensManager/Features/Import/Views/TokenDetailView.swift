@@ -4,8 +4,8 @@ struct TokenDetailView: View {
   let node: TokenNode
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 16) {
-      VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.extraLarge) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
         header
         nodeType
         nodePath
@@ -32,8 +32,8 @@ struct TokenDetailView: View {
         Text("Exclu")
           .font(.caption2)
           .fontWeight(.medium)
-          .padding(.horizontal, 6)
-          .padding(.vertical, 2)
+          .padding(.horizontal, UIConstants.Spacing.medium)
+          .padding(.vertical, UIConstants.Spacing.extraSmall)
           .background(Color.orange.opacity(0.2))
           .foregroundStyle(.orange)
           .clipShape(Capsule())
@@ -65,18 +65,18 @@ struct TokenDetailView: View {
     // Affichage des tokens enfants pour un groupe
     let childTokens = getAllChildTokens(from: node)
     if !childTokens.isEmpty {
-      VStack(alignment: .leading, spacing: 12) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
         Text("Tokens (\(childTokens.count))")
           .font(.headline)
           .fontWeight(.medium)
         ScrollView {
-          LazyVStack(alignment: .leading, spacing: 8) {
+          LazyVStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
             ForEach(childTokens) { token in
               tokenRow(token: token)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 6)
+                .padding(.horizontal, UIConstants.Spacing.medium)
+                .padding(.vertical, UIConstants.Spacing.medium)
                 .background(
-                  RoundedRectangle(cornerRadius: 6)
+                  RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium)
                     .fill(Color(nsColor: .controlBackgroundColor))
                 )
             }
@@ -94,7 +94,7 @@ struct TokenDetailView: View {
   
   @ViewBuilder
   private func singleTokenThemes(modes: TokenThemes) -> some View {
-    VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.extraLarge) {
       // Legacy Brand
       if let legacy = modes.legacy {
         brandSection(name: Brand.legacy, theme: legacy, accentColor: .blue)
@@ -111,17 +111,17 @@ struct TokenDetailView: View {
   private func brandSection(name: String, theme: TokenThemes.Appearance, accentColor: Color) -> some View {
     VStack(alignment: .leading, spacing: 12) {
       // Brand header
-      HStack(spacing: 6) {
+      HStack(spacing: UIConstants.Spacing.medium) {
         Circle()
           .fill(accentColor)
-          .frame(width: 8, height: 8)
+          .frame(width: UIConstants.Spacing.medium, height: UIConstants.Spacing.medium)
         Text(name)
           .font(.subheadline)
           .fontWeight(.semibold)
       }
       
       // Theme colors in horizontal layout
-      HStack(spacing: 16) {
+      HStack(spacing: UIConstants.Spacing.extraLarge) {
         if let lightValue = theme.light {
           themeColorCard(value: lightValue, label: "Light", icon: "sun.max.fill")
         }
@@ -132,7 +132,7 @@ struct TokenDetailView: View {
     }
     .padding()
     .background(Color(.controlBackgroundColor).opacity(0.5))
-    .clipShape(RoundedRectangle(cornerRadius: 10))
+    .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.extraLarge))
   }
   
   @ViewBuilder
@@ -160,9 +160,9 @@ struct TokenDetailView: View {
   
   // Vue pour afficher un token dans la liste
   private func tokenRow(token: TokenNode) -> some View {
-    HStack(spacing: 4) {
-      VStack(alignment: .leading, spacing: 4) {
-        HStack(spacing: 6) {
+    HStack(spacing: UIConstants.Spacing.small) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
+        HStack(spacing: UIConstants.Spacing.medium) {
           Text(token.name)
             .font(.subheadline)
             .fontWeight(.medium)
@@ -171,8 +171,8 @@ struct TokenDetailView: View {
             Text("Exclu")
               .font(.caption2)
               .fontWeight(.medium)
-              .padding(.horizontal, 4)
-              .padding(.vertical, 1)
+              .padding(.horizontal, UIConstants.Spacing.small)
+              .padding(.vertical, UIConstants.Spacing.extraSmall)
               .background(Color.orange.opacity(0.2))
               .foregroundStyle(.orange)
               .clipShape(Capsule())
@@ -209,13 +209,13 @@ private struct ThemeColorCardView: View {
   @State private var isHovering = false
   
   var body: some View {
-    HStack(spacing: 12) {
+    HStack(spacing: UIConstants.Spacing.large) {
       // Color preview - clickable
-      RoundedRectangle(cornerRadius: 8)
+      RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
         .fill(Color(hex: value.hex))
-        .frame(width: 48, height: 48)
+        .frame(width: UIConstants.Size.colorSquareMedium, height: UIConstants.Size.colorSquareMedium)
         .overlay(
-          RoundedRectangle(cornerRadius: 8)
+          RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
             .stroke(Color.primary.opacity(isHovering ? 0.3 : 0.15), lineWidth: isHovering ? 2 : 1)
         )
         .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
@@ -228,8 +228,8 @@ private struct ThemeColorCardView: View {
         }
       
       // Info
-      VStack(alignment: .leading, spacing: 4) {
-        HStack(spacing: 4) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
+        HStack(spacing: UIConstants.Spacing.small) {
           Image(systemName: icon)
             .font(.caption2)
             .foregroundStyle(.secondary)
@@ -248,22 +248,22 @@ private struct ThemeColorCardView: View {
   }
   
   private var colorPopover: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
       Text("Détails de la couleur")
         .font(.headline)
         .fontWeight(.semibold)
       
-      HStack(spacing: 12) {
-        RoundedRectangle(cornerRadius: 8)
+      HStack(spacing: UIConstants.Spacing.large) {
+        RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
           .fill(Color(hex: value.hex))
-          .frame(width: 60, height: 60)
+          .frame(width: UIConstants.Size.colorSquare, height: UIConstants.Size.colorSquare)
           .overlay(
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
               .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
           )
         
-        VStack(alignment: .leading, spacing: 8) {
-          VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
+          VStack(alignment: .leading, spacing: UIConstants.Spacing.extraSmall) {
             Text("Hex")
               .font(.caption)
               .fontWeight(.medium)
@@ -275,7 +275,7 @@ private struct ThemeColorCardView: View {
               .textSelection(.enabled)
           }
           
-          VStack(alignment: .leading, spacing: 2) {
+          VStack(alignment: .leading, spacing: UIConstants.Spacing.extraSmall) {
             Text("Primitive")
               .font(.caption)
               .fontWeight(.medium)
@@ -291,7 +291,7 @@ private struct ThemeColorCardView: View {
       }
     }
     .padding()
-    .frame(width: 280)
+    .frame(width: UIConstants.Size.popoverWidth)
   }
 }
 
@@ -300,17 +300,17 @@ private struct ThemeColorCardView: View {
 #if DEBUG
 #Preview("Token Detail") {
   TokenDetailView(node: PreviewData.singleToken)
-    .frame(width: 400, height: 300)
+    .frame(width: UIConstants.Size.previewWidth, height: UIConstants.Size.previewHeight)
 }
 
 #Preview("Group Detail") {
   TokenDetailView(node: PreviewData.brandGroup)
-    .frame(width: 400, height: 400)
+    .frame(width: UIConstants.Size.previewWidth, height: UIConstants.Size.previewWidth)
 }
 
 #Preview("Disabled Token") {
   TokenDetailView(node: PreviewData.disabledToken)
-    .frame(width: 400, height: 300)
+    .frame(width: UIConstants.Size.previewWidth, height: UIConstants.Size.previewHeight)
 }
 #endif
 

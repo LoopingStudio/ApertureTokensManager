@@ -11,7 +11,7 @@ struct OverviewView: View {
   @State private var showCards = false
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 20) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.xxLarge) {
       Text("Résumé des changements")
         .font(.title2)
         .fontWeight(.semibold)
@@ -29,13 +29,13 @@ struct OverviewView: View {
       Spacer()
     }
     .onAppear {
-      withAnimation(.easeOut(duration: 0.3)) {
+      withAnimation(.easeOut(duration: AnimationDuration.slow)) {
         showTitle = true
       }
       withAnimation(.easeOut(duration: 0.35).delay(0.1)) {
         showFileInfo = true
       }
-      withAnimation(.easeOut(duration: 0.4).delay(0.2)) {
+      withAnimation(.easeOut(duration: AnimationDuration.verySlow).delay(0.2)) {
         showCards = true
       }
     }
@@ -44,7 +44,7 @@ struct OverviewView: View {
   // MARK: - File Info Section
   
   private var fileInfoSection: some View {
-    HStack(spacing: 20) {
+    HStack(spacing: UIConstants.Spacing.xxLarge) {
       fileInfoCard(title: "Ancienne Version", metadata: oldFileMetadata, color: .blue)
       
       Image(systemName: "arrow.right")
@@ -53,17 +53,17 @@ struct OverviewView: View {
       
       fileInfoCard(title: "Nouvelle Version", metadata: newFileMetadata, color: .green)
     }
-    .padding(.bottom, 8)
+    .padding(.bottom, UIConstants.Spacing.medium)
   }
   
   private func fileInfoCard(title: String, metadata: TokenMetadata?, color: Color) -> some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
       Text(title)
         .font(.headline)
         .foregroundStyle(color)
       
       if let metadata = metadata {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
           Text("Exporté le: \(formatFrenchDate(metadata.exportedAt))")
             .font(.caption)
             .foregroundStyle(.primary)
@@ -85,10 +85,10 @@ struct OverviewView: View {
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding()
     .background(
-      RoundedRectangle(cornerRadius: 8)
+      RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
         .fill(color.opacity(0.1))
         .overlay(
-          RoundedRectangle(cornerRadius: 8)
+          RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
             .stroke(color.opacity(0.3), lineWidth: 1)
         )
     )
@@ -101,14 +101,7 @@ struct OverviewView: View {
     outputFormatter.dateStyle = .medium
     outputFormatter.timeStyle = .short
     
-    let formats = [
-      "yyyy-MM-dd HH:mm:ss",
-      "yyyy-MM-dd'T'HH:mm:ss",
-      "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-      "yyyy-MM-dd"
-    ]
-    
-    for format in formats {
+    for format in DateFormatPatterns.all {
       inputFormatter.dateFormat = format
       if let date = inputFormatter.date(from: dateString) {
         return outputFormatter.string(from: date)
@@ -121,7 +114,7 @@ struct OverviewView: View {
   // MARK: - Summary Cards
   
   private var summaryCardsGrid: some View {
-    HStack(spacing: 16) {
+    HStack(spacing: UIConstants.Spacing.extraLarge) {
       StatCard(
         title: "Tokens Ajoutés",
         value: "\(changes.added.count)",

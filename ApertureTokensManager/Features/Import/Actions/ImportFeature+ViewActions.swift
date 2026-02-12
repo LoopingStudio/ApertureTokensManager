@@ -137,7 +137,7 @@ extension ImportFeature {
   }
 
   private func navigateInDirection(_ direction: NavigationDirection, state: inout State) {
-    guard !state.allNodes.isEmpty else { return }
+    guard !state.rootNodes.isEmpty else { return }
     
     let visibleNodes = getVisibleNodes(state: state)
     
@@ -199,14 +199,15 @@ extension ImportFeature {
 
   // Helper de mutation in-place pour les structs récursives
   private func updateNodeRecursively(nodes: inout [TokenNode], targetId: TokenNode.ID) {
-    for i in 0..<nodes.count {
+    for i in nodes.indices {
       if nodes[i].id == targetId {
         let newState = !nodes[i].isEnabled
         nodes[i].toggleRecursively(newState)
         return
       }
-      if nodes[i].children != nil {
-        updateNodeRecursively(nodes: &nodes[i].children!, targetId: targetId)
+      if var children = nodes[i].children {
+        updateNodeRecursively(nodes: &children, targetId: targetId)
+        nodes[i].children = children
       }
     }
   }
@@ -234,7 +235,7 @@ extension ImportFeature {
         fileName: fileName,
         bookmarkData: bookmarkData,
         metadata: metadata,
-        tokens: state.rootNodes
+        tokens: state.originalRootNodes  // Sauvegarder les tokens SANS filtres
       )
     }
     return .merge(

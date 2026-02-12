@@ -51,8 +51,8 @@ public struct ScanProgress: Equatable, Sendable {
 // MARK: - Usage Analysis Models
 
 /// Rapport complet d'analyse d'utilisation des tokens
-public struct TokenUsageReport: Equatable, Sendable {
-  public let id = UUID()
+public struct TokenUsageReport: Equatable, Sendable, Identifiable {
+  public var id: Date { analyzedAt }
   
   /// Date de l'analyse
   let analyzedAt: Date
@@ -100,7 +100,7 @@ public struct TokenUsageReport: Equatable, Sendable {
 
 /// Représente un dossier scanné
 public struct ScannedDirectory: Equatable, Sendable, Identifiable {
-  public let id = UUID()
+  public var id: URL { url }
   
   /// Nom affiché du dossier
   let name: String
@@ -126,7 +126,7 @@ public struct ScannedDirectory: Equatable, Sendable, Identifiable {
 
 /// Token utilisé avec ses occurrences
 public struct UsedToken: Equatable, Sendable, Identifiable {
-  public let id = UUID()
+  public var id: String { enumCase }
   
   /// Nom du case enum (ex: "bgBrandSolid")
   let enumCase: String
@@ -149,7 +149,7 @@ public struct UsedToken: Equatable, Sendable, Identifiable {
 
 /// Occurrence d'utilisation d'un token
 public struct TokenUsage: Equatable, Sendable, Identifiable {
-  public let id = UUID()
+  public var id: String { "\(filePath):\(lineNumber)" }
   
   /// Chemin du fichier
   let filePath: String
@@ -175,7 +175,7 @@ public struct TokenUsage: Equatable, Sendable, Identifiable {
 
 /// Token non utilisé (orphelin)
 public struct OrphanedToken: Equatable, Sendable, Identifiable {
-  public let id = UUID()
+  public var id: String { enumCase }
   
   /// Nom du case enum (ex: "bgBrandSolid")
   let enumCase: String
@@ -290,12 +290,12 @@ public struct ScanDirectory: Equatable, Sendable, Identifiable, Codable {
     
     // Reconstruire l'URL depuis le bookmark
     if let bookmarkData = self.bookmarkData {
-      var isStale = false
+      var _isStale = false
       if let resolvedURL = try? URL(
         resolvingBookmarkData: bookmarkData,
         options: .withSecurityScope,
         relativeTo: nil,
-        bookmarkDataIsStale: &isStale
+        bookmarkDataIsStale: &_isStale
       ) {
         self.url = resolvedURL
       } else {
@@ -317,12 +317,12 @@ public struct ScanDirectory: Equatable, Sendable, Identifiable, Codable {
   /// Tente de résoudre l'URL et démarrer l'accès security-scoped
   public func resolveAndAccess() -> URL? {
     guard let bookmarkData = bookmarkData else { return nil }
-    var isStale = false
+    var _isStale = false
     guard let resolvedURL = try? URL(
       resolvingBookmarkData: bookmarkData,
       options: .withSecurityScope,
       relativeTo: nil,
-      bookmarkDataIsStale: &isStale
+      bookmarkDataIsStale: &_isStale
     ) else { return nil }
     
     _ = resolvedURL.startAccessingSecurityScopedResource()

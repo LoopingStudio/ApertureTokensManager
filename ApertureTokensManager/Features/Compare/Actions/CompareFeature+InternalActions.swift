@@ -96,7 +96,6 @@ extension CompareFeature {
       return .none
       
     case .loadFromHistoryEntry(let entry):
-      // Réutilise la même logique que historyEntryTapped
       let urls = entry.resolveURLs()
       guard urls.old != nil || urls.new != nil else {
         return .run { send in
@@ -106,16 +105,10 @@ extension CompareFeature {
         }
       }
       
-      var effects: [Effect<Action>] = []
-      if let oldURL = urls.old {
-        _ = oldURL.startAccessingSecurityScopedResource()
-        effects.append(.send(.internal(.loadFile(.old, oldURL))))
-      }
-      if let newURL = urls.new {
-        _ = newURL.startAccessingSecurityScopedResource()
-        effects.append(.send(.internal(.loadFile(.new, newURL))))
-      }
-      return .merge(effects)
+      return .merge(
+        loadSecurityScopedFile(urls.old, fileType: .old),
+        loadSecurityScopedFile(urls.new, fileType: .new)
+      )
       
     case .setBaseAsOldFile(let tokens, let metadata):
       state.oldFile.tokens = tokens
@@ -128,6 +121,21 @@ extension CompareFeature {
     case .suggestionsComputed(let suggestions):
       state.changes?.autoSuggestions = suggestions
       return .none
+    }
+  }
+  
+  // MARK: - Private Helpers
+  
+  private func loadSecurityScopedFile(_ url: URL?, fileType: FileType) -> Effect<Action> {
+    guard let url else { return .none }
+    return .run { send in
+      let didAccess = url.startAccessingSecurityScopedResource()
+      defer {
+        if didAccess {
+          url.stopAccessingSecurityScopedResource()
+        }
+      }
+      await send(.internal(.loadFile(fileType, url)))
     }
   }
 }

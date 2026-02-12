@@ -13,7 +13,7 @@ struct OrphanedTokensListView: View {
   
   var body: some View {
     ScrollView {
-      LazyVStack(spacing: 8) {
+      LazyVStack(spacing: UIConstants.Spacing.medium) {
         if tokens.isEmpty {
           emptyState
         } else {
@@ -33,7 +33,7 @@ struct OrphanedTokensListView: View {
           }
           .padding()
           .background(Color.orange.opacity(0.1))
-          .clipShape(RoundedRectangle(cornerRadius: 12))
+          .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.xxLarge))
           
           // Grouped by category
           ForEach(groupedTokens, id: \.0) { category, categoryTokens in
@@ -53,7 +53,7 @@ struct OrphanedTokensListView: View {
   
   @ViewBuilder
   private var emptyState: some View {
-    VStack(spacing: 12) {
+    VStack(spacing: UIConstants.Spacing.large) {
       Image(systemName: "checkmark.circle.fill")
         .font(.largeTitle)
         .foregroundStyle(.green)
@@ -87,7 +87,7 @@ private struct CategorySection: View {
           Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
             .font(.caption)
             .foregroundStyle(.secondary)
-            .frame(width: 16)
+            .frame(width: UIConstants.Spacing.extraLarge)
           
           Text(category)
             .font(.headline)
@@ -97,26 +97,26 @@ private struct CategorySection: View {
           Text("\(tokens.count) tokens")
             .font(.caption)
             .foregroundStyle(.secondary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
+            .padding(.horizontal, UIConstants.Spacing.medium)
+            .padding(.vertical, UIConstants.Spacing.small)
             .background(Color.orange.opacity(0.2))
             .clipShape(Capsule())
         }
-        .padding(12)
+        .padding(UIConstants.Spacing.large)
         .background(Color(.controlBackgroundColor))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large))
       }
       .buttonStyle(.plain)
       
       // Tokens
       if isExpanded {
-        VStack(spacing: 4) {
+        VStack(spacing: UIConstants.Spacing.small) {
           ForEach(tokens) { token in
             OrphanedTokenRow(token: token, searchText: searchText)
           }
         }
-        .padding(.leading, 24)
-        .padding(.top, 8)
+        .padding(.leading, UIConstants.Spacing.section)
+        .padding(.top, UIConstants.Spacing.medium)
       }
     }
   }
@@ -131,7 +131,7 @@ private struct OrphanedTokenRow: View {
   
   var body: some View {
     HStack {
-      VStack(alignment: .leading, spacing: 4) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
         TokenTreeSearchHelper.highlightedText(token.enumCase, searchText: searchText, baseColor: .primary)
           .font(.system(.body, design: .monospaced))
           .fontWeight(.medium)
@@ -153,9 +153,9 @@ private struct OrphanedTokenRow: View {
       .buttonStyle(.plain)
       .help("Copier le nom")
     }
-    .padding(10)
+    .padding(UIConstants.Spacing.extraLarge)
     .background(Color(.controlBackgroundColor).opacity(0.5))
-    .clipShape(RoundedRectangle(cornerRadius: 8))
+    .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large))
   }
   
   private func copyToClipboard() {
@@ -163,7 +163,8 @@ private struct OrphanedTokenRow: View {
     NSPasteboard.general.setString(token.enumCase, forType: .string)
     
     isCopied = true
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+    Task {
+      try? await Task.sleep(for: .milliseconds(1500))
       isCopied = false
     }
   }

@@ -60,12 +60,12 @@ public struct ImportHistoryEntry: Codable, Identifiable, Equatable, Sendable {
   /// Resolves the bookmark to get the file URL
   public func resolveURL() -> URL? {
     guard let bookmarkData else { return nil }
-    var isStale = false
+    var _isStale = false
     return try? URL(
       resolvingBookmarkData: bookmarkData,
       options: .withSecurityScope,
       relativeTo: nil,
-      bookmarkDataIsStale: &isStale
+      bookmarkDataIsStale: &_isStale
     )
   }
 }
@@ -85,12 +85,12 @@ public struct FileSnapshot: Codable, Equatable, Sendable {
   
   public func resolveURL() -> URL? {
     guard let bookmarkData else { return nil }
-    var isStale = false
+    var _isStale = false
     return try? URL(
       resolvingBookmarkData: bookmarkData,
       options: .withSecurityScope,
       relativeTo: nil,
-      bookmarkDataIsStale: &isStale
+      bookmarkDataIsStale: &_isStale
     )
   }
 }

@@ -43,7 +43,7 @@ private struct StaticStatCard: View {
   let icon: String
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
       HStack {
         Image(systemName: icon)
           .foregroundStyle(color)
@@ -64,7 +64,7 @@ private struct StaticStatCard: View {
     .padding()
     .frame(maxWidth: .infinity, alignment: .leading)
     .background(color.opacity(0.1))
-    .clipShape(RoundedRectangle(cornerRadius: 12))
+    .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.xxLarge))
   }
 }
 
@@ -84,7 +84,7 @@ private struct InteractiveStatCard: View {
   
   var body: some View {
     Button(action: handleTap) {
-      VStack(alignment: .leading, spacing: 8) {
+      VStack(alignment: .leading, spacing: UIConstants.Spacing.medium) {
         HStack {
           Image(systemName: icon)
             .foregroundStyle(color)
@@ -114,17 +114,17 @@ private struct InteractiveStatCard: View {
       .padding()
       .frame(maxWidth: .infinity, alignment: .leading)
       .background(
-        RoundedRectangle(cornerRadius: 12)
+        RoundedRectangle(cornerRadius: UIConstants.CornerRadius.xxLarge)
           .fill(color.opacity(isHovering ? 0.15 : 0.1))
           .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: UIConstants.CornerRadius.xxLarge)
               .stroke(color.opacity(isHovering ? 0.4 : 0.15), lineWidth: 1)
           )
       )
       .scaleEffect(isPressed ? 0.97 : (isHovering ? 1.02 : 1.0))
     }
     .buttonStyle(.plain)
-    .animation(.easeOut(duration: 0.2), value: isHovering)
+    .animation(.easeOut(duration: AnimationDuration.normal), value: isHovering)
     .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
     .onHover { hovering in handleHover(hovering) }
     .onLongPressGesture(minimumDuration: 0, pressing: { pressing in
@@ -146,7 +146,8 @@ private struct InteractiveStatCard: View {
     withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
       iconBounce = true
     }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+    Task {
+      try? await Task.sleep(for: .milliseconds(150))
       withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
         iconBounce = false
       }
@@ -166,13 +167,13 @@ struct CompactStatCard: View {
     Button {
       action?()
     } label: {
-      HStack(spacing: 12) {
+      HStack(spacing: UIConstants.Spacing.large) {
         Image(systemName: icon)
           .font(.title2)
           .foregroundStyle(color)
-          .frame(width: 32)
+          .frame(width: UIConstants.Size.iconSmall)
         
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: UIConstants.Spacing.extraSmall) {
           Text(value)
             .font(.system(size: 20, weight: .bold, design: .rounded))
           
@@ -183,9 +184,9 @@ struct CompactStatCard: View {
         
         Spacer()
       }
-      .padding(12)
+      .padding(UIConstants.Spacing.large)
       .background(color.opacity(0.1))
-      .clipShape(RoundedRectangle(cornerRadius: 10))
+      .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.extraLarge))
     }
     .buttonStyle(.plain)
     .disabled(action == nil)
@@ -194,7 +195,7 @@ struct CompactStatCard: View {
 
 #if DEBUG
 #Preview("StatCard") {
-  HStack(spacing: 16) {
+  HStack(spacing: UIConstants.Spacing.extraLarge) {
     StatCard(
       title: "Tokens Utilisés",
       value: "142",
@@ -224,7 +225,7 @@ struct CompactStatCard: View {
 }
 
 #Preview("CompactStatCard") {
-  VStack(spacing: 8) {
+  VStack(spacing: UIConstants.Spacing.medium) {
     CompactStatCard(
       title: "Ajoutés",
       value: "12",

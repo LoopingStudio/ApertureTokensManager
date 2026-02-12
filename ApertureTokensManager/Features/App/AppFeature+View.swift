@@ -27,10 +27,10 @@ struct AppView: View {
         }
         .tag(AppFeature.Tab.importer)
     }
-    .frame(minWidth: 800, minHeight: 600)
+    .frame(minWidth: UIConstants.Size.windowMinWidth, minHeight: UIConstants.Size.windowMinHeight)
     .toolbar {
       ToolbarItem(placement: .primaryAction) {
-        HStack(spacing: 8) {
+        HStack(spacing: UIConstants.Spacing.medium) {
           Button {
             store.send(.tutorialButtonTapped)
           } label: {

@@ -13,6 +13,7 @@ public struct ImportFeature: Sendable {
   @ObservableState
   public struct State: Equatable {
     var rootNodes: [TokenNode]
+    var originalRootNodes: [TokenNode]  // Tokens sans filtres appliqués
     var isFileLoaded: Bool
     var isLoading: Bool
     var loadingError: Bool
@@ -20,7 +21,6 @@ public struct ImportFeature: Sendable {
     var metadata: TokenMetadata?
     var selectedNode: TokenNode?
     var expandedNodes: Set<TokenNode.ID> = []
-    var allNodes: [TokenNode] = []
     var currentFileURL: URL?
     var searchText: String = ""
     var showSetAsBaseConfirmation: Bool = false
@@ -37,6 +37,7 @@ public struct ImportFeature: Sendable {
     public static var initial: Self {
       .init(
         rootNodes: [],
+        originalRootNodes: [],
         isFileLoaded: false,
         isLoading: false,
         loadingError: false,
@@ -44,7 +45,6 @@ public struct ImportFeature: Sendable {
         metadata: nil,
         selectedNode: nil,
         expandedNodes: [],
-        allNodes: [],
         currentFileURL: nil
       )
     }

@@ -6,9 +6,9 @@ struct UsageOverviewView: View {
   
   var body: some View {
     ScrollView {
-      VStack(spacing: 24) {
+      VStack(spacing: UIConstants.Spacing.section) {
         // Stats Cards
-        HStack(spacing: 16) {
+        HStack(spacing: UIConstants.Spacing.extraLarge) {
           StatCard(
             title: "Tokens Utilisés",
             value: "\(report.statistics.usedCount)",
@@ -37,7 +37,7 @@ struct UsageOverviewView: View {
         }
         
         // Scanned Directories
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
           Text("Dossiers analysés")
             .font(.headline)
           
@@ -55,18 +55,18 @@ struct UsageOverviewView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             }
-            .padding(8)
+            .padding(UIConstants.Spacing.medium)
             .background(Color(.controlBackgroundColor))
-            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium))
           }
         }
         .padding()
         .background(Color(.controlBackgroundColor).opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.xxLarge))
         
         // Top Used Tokens
         if !report.usedTokens.isEmpty {
-          VStack(alignment: .leading, spacing: 12) {
+          VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
             HStack {
               Text("Tokens les plus utilisés")
                 .font(.headline)
@@ -89,26 +89,26 @@ struct UsageOverviewView: View {
                 Text("\(token.usageCount) usages")
                   .font(.caption)
                   .foregroundStyle(.secondary)
-                  .padding(.horizontal, 8)
-                  .padding(.vertical, 4)
+                  .padding(.horizontal, UIConstants.Spacing.medium)
+                  .padding(.vertical, UIConstants.Spacing.small)
                   .background(Color.green.opacity(0.2))
                   .clipShape(Capsule())
               }
-              .padding(8)
+              .padding(UIConstants.Spacing.medium)
               .background(Color(.controlBackgroundColor))
-              .clipShape(RoundedRectangle(cornerRadius: 6))
+              .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium))
             }
           }
           .padding()
           .background(Color(.controlBackgroundColor).opacity(0.5))
-          .clipShape(RoundedRectangle(cornerRadius: 12))
+          .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.xxLarge))
         }
         
         // Orphaned Categories Preview
         if !report.orphanedTokens.isEmpty {
           let grouped = Dictionary(grouping: report.orphanedTokens, by: \.category)
           
-          VStack(alignment: .leading, spacing: 12) {
+          VStack(alignment: .leading, spacing: UIConstants.Spacing.large) {
             HStack {
               Text("Catégories orphelines")
                 .font(.headline)
@@ -131,19 +131,19 @@ struct UsageOverviewView: View {
                 Text("\(grouped[category]?.count ?? 0) tokens")
                   .font(.caption)
                   .foregroundStyle(.secondary)
-                  .padding(.horizontal, 8)
-                  .padding(.vertical, 4)
+                  .padding(.horizontal, UIConstants.Spacing.medium)
+                  .padding(.vertical, UIConstants.Spacing.small)
                   .background(Color.orange.opacity(0.2))
                   .clipShape(Capsule())
               }
-              .padding(8)
+              .padding(UIConstants.Spacing.medium)
               .background(Color(.controlBackgroundColor))
-              .clipShape(RoundedRectangle(cornerRadius: 6))
+              .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium))
             }
           }
           .padding()
           .background(Color(.controlBackgroundColor).opacity(0.5))
-          .clipShape(RoundedRectangle(cornerRadius: 12))
+          .clipShape(RoundedRectangle(cornerRadius: UIConstants.CornerRadius.xxLarge))
         }
         
         // Analysis Info
@@ -155,7 +155,7 @@ struct UsageOverviewView: View {
             .foregroundStyle(.secondary)
         }
       }
-      .padding(4) // Espace pour le scale au hover des StatCards
+      .padding(UIConstants.Spacing.small) // Espace pour le scale au hover des StatCards
     }
   }
 }

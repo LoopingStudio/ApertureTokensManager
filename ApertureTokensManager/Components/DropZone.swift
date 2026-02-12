@@ -54,11 +54,11 @@ struct DropZone: View {
   }
   
   var body: some View {
-    VStack(spacing: 16) {
-      VStack(spacing: 12) {
+    VStack(spacing: UIConstants.Spacing.extraLarge) {
+      VStack(spacing: UIConstants.Spacing.large) {
         iconView
         
-        HStack(spacing: 6) {
+        HStack(spacing: UIConstants.Spacing.medium) {
           Text(title)
             .font(.headline)
             .fontWeight(.semibold)
@@ -100,7 +100,7 @@ struct DropZone: View {
         ))
       }
     }
-    .frame(maxWidth: .infinity, minHeight: 200)
+    .frame(maxWidth: .infinity, minHeight: UIConstants.Size.dropZoneMinHeight)
     .padding()
     .background(backgroundView)
     .scaleEffect(isPressed ? 0.98 : (isDragHovering ? 1.02 : 1.0))
@@ -115,7 +115,7 @@ struct DropZone: View {
       // Animation is handled by the animated() binding
     }
     .onAppear {
-      withAnimation(.easeOut(duration: 0.4).delay(0.1)) {
+      withAnimation(.easeOut(duration: AnimationDuration.verySlow).delay(0.1)) {
         showContent = true
       }
     }
@@ -169,7 +169,7 @@ struct DropZone: View {
           .font(.caption)
           .foregroundStyle(.secondary)
       } else if hasError {
-        VStack(spacing: 4) {
+        VStack(spacing: UIConstants.Spacing.small) {
           Text("Erreur de chargement")
             .font(.caption)
             .foregroundStyle(.red)
@@ -182,7 +182,7 @@ struct DropZone: View {
           }
         }
       } else if isLoaded {
-        VStack(spacing: 2) {
+        VStack(spacing: UIConstants.Spacing.extraSmall) {
           if let fileName = fileName {
             Text(fileName)
               .font(.caption)
@@ -199,14 +199,14 @@ struct DropZone: View {
           .font(.caption)
           .foregroundStyle(isDragHovering ? primaryColor : .secondary)
           .multilineTextAlignment(.center)
-          .animation(.easeInOut(duration: 0.2), value: isDragHovering)
+          .animation(.easeInOut(duration: AnimationDuration.normal), value: isDragHovering)
       }
     }
     .contentTransition(.interpolate)
   }
   
   private func metadataView(_ metadata: TokenMetadata) -> some View {
-    VStack(spacing: 2) {
+    VStack(spacing: UIConstants.Spacing.extraSmall) {
       Text("Exporté le")
         .font(.caption2)
         .foregroundStyle(.tertiary)
@@ -219,8 +219,8 @@ struct DropZone: View {
         .font(.caption2)
         .foregroundStyle(.tertiary)
     }
-    .padding(.horizontal, 8)
-    .padding(.vertical, 4)
+    .padding(.horizontal, UIConstants.Spacing.medium)
+    .padding(.vertical, UIConstants.Spacing.small)
     .background(
       Capsule()
         .fill(Color.secondary.opacity(0.1))
@@ -229,10 +229,10 @@ struct DropZone: View {
   
   @ViewBuilder
   private var backgroundView: some View {
-    RoundedRectangle(cornerRadius: 12)
+    RoundedRectangle(cornerRadius: UIConstants.CornerRadius.xxLarge)
       .fill(backgroundColor)
       .overlay(
-        RoundedRectangle(cornerRadius: 12)
+        RoundedRectangle(cornerRadius: UIConstants.CornerRadius.xxLarge)
           .stroke(
             borderColor,
             style: StrokeStyle(
@@ -245,8 +245,8 @@ struct DropZone: View {
         color: isDragHovering ? primaryColor.opacity(0.3) : .clear,
         radius: isDragHovering ? 8 : 0
       )
-      .animation(.easeInOut(duration: 0.2), value: isDragHovering)
-      .animation(.easeInOut(duration: 0.3), value: isLoaded)
+      .animation(.easeInOut(duration: AnimationDuration.normal), value: isDragHovering)
+      .animation(.easeInOut(duration: AnimationDuration.slow), value: isLoaded)
   }
   
   private var backgroundColor: Color {
@@ -276,7 +276,7 @@ struct DropZone: View {
   // MARK: - Private Methods
   
   private func handleHover(_ hovering: Bool) {
-    withAnimation(.easeInOut(duration: 0.2)) {
+    withAnimation(.easeInOut(duration: AnimationDuration.normal)) {
       isHovering = hovering
     }
     
@@ -292,7 +292,8 @@ struct DropZone: View {
     withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
       iconScale = 1.1
     }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+    Task {
+      try? await Task.sleep(for: .milliseconds(150))
       withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
         iconScale = 1.0
       }
@@ -305,7 +306,8 @@ struct DropZone: View {
     withAnimation(.spring(response: 0.1, dampingFraction: 0.6)) {
       isPressed = true
     }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+    Task {
+      try? await Task.sleep(for: .milliseconds(100))
       withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
         isPressed = false
       }
@@ -318,7 +320,7 @@ struct DropZone: View {
 
 private struct BaseBadge: View {
   var body: some View {
-    HStack(spacing: 3) {
+    HStack(spacing: UIConstants.Spacing.extraSmall) {
       Image(systemName: "checkmark.seal.fill")
         .font(.caption2)
       Text("Base")
@@ -326,8 +328,8 @@ private struct BaseBadge: View {
         .fontWeight(.medium)
     }
     .foregroundStyle(.white)
-    .padding(.horizontal, 6)
-    .padding(.vertical, 2)
+    .padding(.horizontal, UIConstants.Spacing.medium)
+    .padding(.vertical, UIConstants.Spacing.extraSmall)
     .background(
       Capsule()
         .fill(Color.orange.gradient)
@@ -337,7 +339,7 @@ private struct BaseBadge: View {
 
 #if DEBUG
 #Preview {
-  VStack(spacing: 20) {
+  VStack(spacing: UIConstants.Spacing.xxLarge) {
     // État normal
     DropZone(
       title: "Fichier de tokens",
@@ -385,6 +387,6 @@ private struct BaseBadge: View {
     )
   }
   .padding()
-  .frame(width: 400)
+  .frame(width: UIConstants.Size.previewWidth)
 }
 #endif

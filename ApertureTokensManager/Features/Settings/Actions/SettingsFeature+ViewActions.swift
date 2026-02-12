@@ -47,7 +47,9 @@ extension SettingsFeature {
       
     case .openDataFolderButtonTapped:
       return .run { [fileClient] _ in
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+          return
+        }
         await fileClient.openInFinder(documentsURL)
       }
       
