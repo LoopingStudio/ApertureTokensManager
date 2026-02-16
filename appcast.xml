@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>ApertureTokensManager</title>
+        <item>
+            <title>1.0.1</title>
+            <pubDate>Fri, 16 Feb 2026 10:19:35 +0100</pubDate>
+            <sparkle:version>1</sparkle:version>
+            <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <h2>What's New</h2>
+                <ul>
+                    <li>Initial release of Aperture Tokens Manager.</li>
+                    <li>Enjoy the first version of the app !</li>
+                </ul>
+              ]]>
+            </description>
+            <enclosure url="https://github.com/LoopingStudio/ApertureTokenManager/releases/download/1.0.1/ApertureTokensManager.zip" length="7253356" type="application/octet-stream" sparkle:edSignature="pPTbrV1VW8MjuWMyeQxQh8MsYUYOaiX/qTw8WFdjmE1nzTgUy3QirBKVPenqXDifibe5BhosHD6XFsRvkn0xCQ=="/>
+        </item>
+    </channel>
+</rss>
