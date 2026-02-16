@@ -9,6 +9,7 @@
             <sparkle:shortVersionString>1.0.5</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
             <enclosure url="https://loopingstudio.github.io/ApertureTokensManager/Releases/ApertureTokensManager.dmg" length="15434811" type="application/octet-stream" sparkle:edSignature="guQ53t47nOG+ifGVzpbUSKVIB8M3OsoBXPLcBVQmFa45x8k33lge6oOamHStX30iAnFfCdAD0LhvUqYsXJ8uDA=="/>
+            <sparkle:releaseNotesLink>https://loopingstudio.github.io/ApertureTokensManager/Releases/ApertureTokensManager.md</sparkle:releaseNotesLink>
         </item>
         <item>
             <title>1.0.4</title>
