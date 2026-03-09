@@ -19,7 +19,7 @@
       ],
       "type" : 2
     },
-    "codeSigningIdentityString" : "191DB7E05812D095E0C5E9F9C8D1D830BBE6BE3D",
+    "codeSigningIdentityString" : "E4B5565AB334EE35BB5368B1A4E6975A696E8F86",
     "defaultLicenseLanguage" : "Français",
     "iconPreviewVisible" : false,
     "iconSize" : 150,
@@ -51,12 +51,12 @@
     "windowContentHeight" : 360,
     "windowContents" : [
       {
-        "filePath" : "\/Users\/keliandaste\/Documents\/ApertureTokenManagerUpdates\/1.0.5\/ApertureTokensManager.app",
+        "filePath" : "\/Users\/keliandaste\/Documents\/Picta\/ApertureTokenManagerUpdates\/1.0.7\/ApertureTokensManager.app",
         "iconSize" : 100,
         "invisible" : false,
         "isAnAlias" : false,
         "location" : "{153, 180}",
-        "relativeFilePath" : "..\/..\/..\/ApertureTokenManagerUpdates\/1.0.5\/ApertureTokensManager.app"
+        "relativeFilePath" : "..\/..\/ApertureTokenManagerUpdates\/1.0.7\/ApertureTokensManager.app"
       },
       {
         "filePath" : "\/Applications",
