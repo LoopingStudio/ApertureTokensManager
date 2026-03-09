@@ -105,6 +105,15 @@ public enum AnimationDuration {
   public static let verySlow: Double = 0.4
 }
 
+// MARK: - Graph Constants
+public enum GraphConstants {
+  public static let columnWidth: CGFloat = 220
+  public static let columnSpacing: CGFloat = 120
+  public static let cardHeight: CGFloat = 28
+  public static let cardSpacing: CGFloat = 4
+  public static let canvasPadding: CGFloat = 32
+}
+
 // MARK: - History Constants
 public enum HistoryConstants {
   public static let maxEntries = 10

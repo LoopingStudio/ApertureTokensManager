@@ -231,4 +231,5 @@ enum LogFeature {
   static let app = "App"
   static let tutorial = "Tutorial"
   static let home = "Home"
+  static let graph = "Graph"
 }

@@ -3,6 +3,15 @@
     <channel>
         <title>ApertureTokensManager</title>
         <item>
+            <title>1.0.6</title>
+            <pubDate>Mon, 09 Mar 2026 17:34:14 +0100</pubDate>
+            <sparkle:version>7</sparkle:version>
+            <sparkle:shortVersionString>1.0.6</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <sparkle:releaseNotesLink>https://loopingstudio.github.io/ApertureTokensManager/Releases/ApertureTokensManager.md</sparkle:releaseNotesLink>
+            <enclosure url="https://loopingstudio.github.io/ApertureTokensManager/Releases/ApertureTokensManager.dmg" length="15767854" type="application/octet-stream" sparkle:edSignature="5bPO2upBaLOQySS9oNxWyzuKacNFcE1rpALhbulutZ+/f3Pe4nWCGAgnBP6vywAYSpDgeJbo3xoJqrVlpifWDg=="/>
+        </item>
+        <item>
             <title>1.0.5</title>
             <pubDate>Fri, 16 Feb 2026 12:30:35 +0100</pubDate>
             <sparkle:version>6</sparkle:version>
@@ -24,21 +33,6 @@
             </ul>
           ]]></description>
             <enclosure url="https://github.com/LoopingStudio/ApertureTokenManager/releases/download/1.0.4/ApertureTokensManager.zip" length="7253356" type="application/octet-stream" sparkle:edSignature="pPTbrV1VW8MjuWMyeQxQh8MsYUYOaiX/qTw8WFdjmE1nzTgUy3QirBKVPenqXDifibe5BhosHD6XFsRvkn0xCQ=="/>
-        </item>
-        <item>
-            <title>1.0.3</title>
-            <pubDate>Fri, 16 Feb 2026 11:05:35 +0100</pubDate>
-            <sparkle:version>4</sparkle:version>
-            <sparkle:shortVersionString>1.0.3</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
-            <description><![CDATA[
-            <h2>What's New</h2>
-            <ul>
-            <li>Initial release of Aperture Tokens Manager.</li>
-            <li>Enjoy the first version of the app !</li>
-            </ul>
-          ]]></description>
-            <enclosure url="https://github.com/LoopingStudio/ApertureTokenManager/releases/download/1.0.3/ApertureTokensManager.zip" length="7253356" type="application/octet-stream" sparkle:edSignature="pPTbrV1VW8MjuWMyeQxQh8MsYUYOaiX/qTw8WFdjmE1nzTgUy3QirBKVPenqXDifibe5BhosHD6XFsRvkn0xCQ=="/>
         </item>
     </channel>
 </rss>
