@@ -10,22 +10,25 @@ struct AppFeature {
     case importer
     case compare
     case analysis
-    
+    case graph
+
     var index: Int {
       switch self {
       case .home: 1
       case .importer: 2
       case .compare: 3
       case .analysis: 4
+      case .graph: 5
       }
     }
-    
+
     init?(index: Int) {
       switch index {
       case 1: self = .home
       case 2: self = .importer
       case 3: self = .compare
       case 4: self = .analysis
+      case 5: self = .graph
       default: return nil
       }
     }
@@ -38,7 +41,8 @@ struct AppFeature {
     var importer: ImportFeature.State = .initial
     var compare: CompareFeature.State = .initial
     var analysis: AnalysisFeature.State = .initial
-    
+    var graph: GraphFeature.State = .initial
+
     // Filters (shared for menu access)
     @Shared(.tokenFilters) var tokenFilters: TokenFilters
     
@@ -60,6 +64,7 @@ struct AppFeature {
     case tabSelected(Tab)
     case analysis(AnalysisFeature.Action)
     case compare(CompareFeature.Action)
+    case graph(GraphFeature.Action)
     case home(HomeFeature.Action)
     case importer(ImportFeature.Action)
     case onAppear
@@ -84,6 +89,7 @@ struct AppFeature {
     BindingReducer()
     Scope(state: \.analysis, action: \.analysis) { AnalysisFeature() }
     Scope(state: \.compare, action: \.compare) { CompareFeature() }
+    Scope(state: \.graph, action: \.graph) { GraphFeature() }
     Scope(state: \.home, action: \.home) { HomeFeature() }
     Scope(state: \.importer, action: \.importer) { ImportFeature() }
     Reduce { state, action in
@@ -170,6 +176,10 @@ struct AppFeature {
       case .importer:
         return .none
         
+      // MARK: - Graph Actions
+      case .graph:
+        return .none
+
       // MARK: - Analysis Actions
       case .analysis:
         return .none

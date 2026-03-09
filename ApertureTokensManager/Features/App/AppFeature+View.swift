@@ -26,6 +26,11 @@ struct AppView: View {
           Label("Importer", systemImage: "square.and.arrow.down")
         }
         .tag(AppFeature.Tab.importer)
+      GraphView(store: store.scope(state: \.graph, action: \.graph))
+        .tabItem {
+          Label("Graphe", systemImage: "point.3.connected.trianglepath.dotted")
+        }
+        .tag(AppFeature.Tab.graph)
     }
     .frame(minWidth: UIConstants.Size.windowMinWidth, minHeight: UIConstants.Size.windowMinHeight)
     .toolbar {
