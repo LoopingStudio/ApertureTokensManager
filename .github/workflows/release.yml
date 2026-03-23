@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/sparkle-release.yml
     with:
       app_name: ApertureTokensManager
-      dmg_volume_name: "Aperture Tokens Manager"
+      dmg_volume_name: "ApertureTokensManager"
       github_pages_url: "https://loopingstudio.github.io/ApertureTokensManager"
     secrets:
       DEV_ID_P12_BASE64: ${{ secrets.DEV_ID_P12_BASE64 }}
