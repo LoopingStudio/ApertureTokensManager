@@ -3,6 +3,16 @@
     <channel>
         <title>ApertureTokensManager</title>
         <item>
+            <title>1.0.8</title>
+            <pubDate>Mon, 23 Mar 2026 15:24:33 +0000</pubDate>
+            <link>https://github.com/LoopingStudio/ApertureTokensManager</link>
+            <sparkle:version>9</sparkle:version>
+            <sparkle:shortVersionString>1.0.8</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <sparkle:releaseNotesLink>https://loopingstudio.github.io/ApertureTokensManager/Releases/ApertureTokensManager.md</sparkle:releaseNotesLink>
+            <enclosure url="https://loopingstudio.github.io/ApertureTokensManager/Releases/ApertureTokensManager.dmg" length="14778598" type="application/octet-stream" sparkle:edSignature="A8auXlLN0xHthIUnPKTo0OjJ5MvoRsIKktBjoLSfXGeUdsdcilrRBxDrPFMie24mz+J+K0VJ4XnZpVPYrMlBCQ=="/>
+        </item>
+        <item>
             <title>1.0.7</title>
             <pubDate>Mon, 23 Mar 2026 15:03:06 +0000</pubDate>
             <link>https://github.com/LoopingStudio/ApertureTokensManager</link>
