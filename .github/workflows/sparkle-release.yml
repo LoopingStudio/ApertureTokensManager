@@ -87,7 +87,7 @@ jobs:
       # ──────────────────────────────────────────────
       # 1. Checkout
       # ──────────────────────────────────────────────
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -160,7 +160,9 @@ jobs:
             -clonedSourcePackagesDirPath SPMCache \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="${{ secrets.SIGNING_IDENTITY }}" \
-            DEVELOPMENT_TEAM="${{ secrets.TEAM_ID }}"
+            DEVELOPMENT_TEAM="${{ secrets.TEAM_ID }}" \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER"
 
       - name: Export archive
         run: |
@@ -186,12 +188,22 @@ jobs:
             -exportPath build/export
 
       # ──────────────────────────────────────────────
-      # 5. Create DMG
+      # 5. Create DMG, codesign & notarize
       # ──────────────────────────────────────────────
       - name: Install create-dmg
         run: brew install create-dmg
 
-      - name: Create DMG
+      - name: Store notarization credentials
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          xcrun notarytool store-credentials "AC_PASSWORD" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_APP_PASSWORD" \
+            --team-id "${{ secrets.TEAM_ID }}"
+
+      - name: Create DMG, sign & notarize
         run: |
           mkdir -p build/dmg-source
           cp -R "build/export/$APP_NAME.app" build/dmg-source/
@@ -203,25 +215,11 @@ jobs:
             --icon-size 128 \
             --icon "$APP_NAME.app" 150 185 \
             --app-drop-link 450 185 \
+            --codesign "${{ secrets.SIGNING_IDENTITY }}" \
+            --notarize "AC_PASSWORD" \
             "build/$APP_NAME.dmg" \
             "build/dmg-source/" \
           || test $? -eq 2
-
-      # ──────────────────────────────────────────────
-      # 6. Notarize & staple
-      # ──────────────────────────────────────────────
-      - name: Notarize DMG
-        env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
-        run: |
-          xcrun notarytool submit "build/$APP_NAME.dmg" \
-            --apple-id "$APPLE_ID" \
-            --password "$APPLE_APP_PASSWORD" \
-            --team-id "${{ secrets.TEAM_ID }}" \
-            --wait
-
-          xcrun stapler staple "build/$APP_NAME.dmg"
 
       # ──────────────────────────────────────────────
       # 7. Appcast
