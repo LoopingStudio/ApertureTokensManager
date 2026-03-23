@@ -48,7 +48,7 @@ on:
         description: "GitHub Actions runner (e.g. macos-15)"
         required: false
         type: string
-        default: "macos-15"
+        default: "macos-26"
 
     secrets:
       DEV_ID_P12_BASE64:
