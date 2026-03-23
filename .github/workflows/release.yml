@@ -1,0 +1,25 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    uses: ./.github/workflows/sparkle-release.yml
+    with:
+      app_name: ApertureTokensManager
+      dmg_volume_name: "ApertureTokensManager"
+      github_pages_url: "https://loopingstudio.github.io/ApertureTokensManager"
+    secrets:
+      DEV_ID_P12_BASE64: ${{ secrets.DEV_ID_P12_BASE64 }}
+      DEV_ID_P12_PASSWORD: ${{ secrets.DEV_ID_P12_PASSWORD }}
+      SIGNING_IDENTITY: ${{ secrets.SIGNING_IDENTITY }}
+      TEAM_ID: ${{ secrets.TEAM_ID }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+      SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
