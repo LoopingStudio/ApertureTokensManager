@@ -1,0 +1,290 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  Reusable Sparkle Release Workflow                              ║
+# ║  Build, sign, notarize, DMG, appcast — for any macOS app.      ║
+# ║                                                                 ║
+# ║  Usage from any repo:                                           ║
+# ║    uses: LoopingStudio/ApertureTokensManager/.github/workflows/sparkle-release.yml@main
+# ║  (or move this file to a shared repo like LoopingStudio/.github)║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+name: Sparkle Release (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        description: "Xcode project & app bundle name (e.g. MyApp)"
+        required: true
+        type: string
+      scheme:
+        description: "Xcode scheme (defaults to app_name)"
+        required: false
+        type: string
+        default: ""
+      dmg_volume_name:
+        description: "Human-readable DMG volume name (e.g. My App)"
+        required: true
+        type: string
+      github_pages_url:
+        description: "GitHub Pages base URL for hosting (e.g. https://org.github.io/repo)"
+        required: true
+        type: string
+      link_url:
+        description: "App website or repo URL"
+        required: false
+        type: string
+        default: ""
+      releases_dir:
+        description: "Directory for DMG, appcast, and release notes"
+        required: false
+        type: string
+        default: "Releases"
+      max_appcast_versions:
+        description: "Max versions to keep in appcast (0 = unlimited)"
+        required: false
+        type: number
+        default: 0
+      runner:
+        description: "GitHub Actions runner (e.g. macos-15)"
+        required: false
+        type: string
+        default: "macos-15"
+
+    secrets:
+      DEV_ID_P12_BASE64:
+        description: "Developer ID certificate (.p12) encoded in base64"
+        required: true
+      DEV_ID_P12_PASSWORD:
+        description: "Password for the .p12 certificate"
+        required: true
+      SIGNING_IDENTITY:
+        description: 'Full signing identity (e.g. Developer ID Application: Name (TEAMID))'
+        required: true
+      TEAM_ID:
+        description: "Apple Developer Team ID"
+        required: true
+      APPLE_ID:
+        description: "Apple ID email for notarization"
+        required: true
+      APPLE_APP_PASSWORD:
+        description: "App-specific password for notarization"
+        required: true
+      SPARKLE_PRIVATE_KEY:
+        description: "Sparkle EdDSA private key (from generate_keys -x)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ${{ inputs.runner }}
+    env:
+      APP_NAME: ${{ inputs.app_name }}
+      SCHEME: ${{ inputs.scheme || inputs.app_name }}
+      RELEASES_DIR: ${{ inputs.releases_dir }}
+    steps:
+      # ──────────────────────────────────────────────
+      # 1. Checkout
+      # ──────────────────────────────────────────────
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ──────────────────────────────────────────────
+      # 2. Extract version from tag & bump build number
+      #    Only modifies the app target, not test targets.
+      # ──────────────────────────────────────────────
+      - name: Bump version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+          XCCONFIG=$(find . -name "Version.xcconfig" -not -path "*/DerivedData/*" | head -1)
+          if [ -z "$XCCONFIG" ]; then
+            echo "::error::Version.xcconfig not found"
+            exit 1
+          fi
+          echo "XCCONFIG=$XCCONFIG" >> $GITHUB_ENV
+
+          CURRENT_BUILD=$(awk -F' = ' '/CURRENT_PROJECT_VERSION/{print $2}' "$XCCONFIG")
+          NEW_BUILD=$((CURRENT_BUILD + 1))
+          echo "BUILD_NUMBER=$NEW_BUILD" >> $GITHUB_ENV
+
+          sed -i '' "s/MARKETING_VERSION = .*/MARKETING_VERSION = $VERSION/" "$XCCONFIG"
+          sed -i '' "s/CURRENT_PROJECT_VERSION = .*/CURRENT_PROJECT_VERSION = $NEW_BUILD/" "$XCCONFIG"
+
+          echo "Version: $VERSION (build $NEW_BUILD)"
+
+      # ──────────────────────────────────────────────
+      # 3. Import Developer ID certificate
+      # ──────────────────────────────────────────────
+      - name: Import Developer ID certificate
+        env:
+          DEV_ID_P12_BASE64: ${{ secrets.DEV_ID_P12_BASE64 }}
+          DEV_ID_P12_PASSWORD: ${{ secrets.DEV_ID_P12_PASSWORD }}
+        run: |
+          echo "$DEV_ID_P12_BASE64" | base64 --decode > certificate.p12
+          security create-keychain -p "build" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "build" build.keychain
+          security import certificate.p12 -k build.keychain \
+            -P "$DEV_ID_P12_PASSWORD" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/productsign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "build" build.keychain
+          rm certificate.p12
+
+      # ──────────────────────────────────────────────
+      # 4. Build & archive
+      # ──────────────────────────────────────────────
+      - name: Resolve SPM dependencies
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project "$APP_NAME.xcodeproj" \
+            -clonedSourcePackagesDirPath SPMCache
+
+      - name: Archive
+        run: |
+          xcodebuild archive \
+            -project "$APP_NAME.xcodeproj" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -archivePath "build/$APP_NAME.xcarchive" \
+            -clonedSourcePackagesDirPath SPMCache \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="${{ secrets.SIGNING_IDENTITY }}" \
+            DEVELOPMENT_TEAM="${{ secrets.TEAM_ID }}"
+
+      - name: Export archive
+        run: |
+          cat > /tmp/ExportOptions.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>developer-id</string>
+              <key>teamID</key>
+              <string>REPLACE_TEAM_ID</string>
+              <key>signingCertificate</key>
+              <string>Developer ID Application</string>
+          </dict>
+          </plist>
+          PLIST
+          sed -i '' "s/REPLACE_TEAM_ID/${{ secrets.TEAM_ID }}/" /tmp/ExportOptions.plist
+
+          xcodebuild -exportArchive \
+            -archivePath "build/$APP_NAME.xcarchive" \
+            -exportOptionsPlist /tmp/ExportOptions.plist \
+            -exportPath build/export
+
+      # ──────────────────────────────────────────────
+      # 5. Create DMG
+      # ──────────────────────────────────────────────
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Create DMG
+        run: |
+          mkdir -p build/dmg-source
+          cp -R "build/export/$APP_NAME.app" build/dmg-source/
+
+          # create-dmg returns exit code 2 if it can't set custom volume icon — DMG is still valid
+          create-dmg \
+            --volname "${{ inputs.dmg_volume_name }}" \
+            --window-size 600 400 \
+            --icon-size 128 \
+            --icon "$APP_NAME.app" 150 185 \
+            --app-drop-link 450 185 \
+            "build/$APP_NAME.dmg" \
+            "build/dmg-source/" \
+          || test $? -eq 2
+
+      # ──────────────────────────────────────────────
+      # 6. Notarize & staple
+      # ──────────────────────────────────────────────
+      - name: Notarize DMG
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          xcrun notarytool submit "build/$APP_NAME.dmg" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_APP_PASSWORD" \
+            --team-id "${{ secrets.TEAM_ID }}" \
+            --wait
+
+          xcrun stapler staple "build/$APP_NAME.dmg"
+
+      # ──────────────────────────────────────────────
+      # 7. Appcast
+      # ──────────────────────────────────────────────
+      - name: Copy DMG to Releases
+        run: cp "build/$APP_NAME.dmg" "$RELEASES_DIR/$APP_NAME.dmg"
+
+      - name: Download Sparkle tools
+        run: |
+          RESOLVED_FILE="$APP_NAME.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+          SPARKLE_VERSION=$(jq -r '.pins[] | select(.identity == "sparkle") | .state.version' "$RESOLVED_FILE")
+          echo "Sparkle version from Package.resolved: $SPARKLE_VERSION"
+
+          curl -sfL -o Sparkle.tar.xz \
+            "https://github.com/sparkle-project/Sparkle/releases/download/$SPARKLE_VERSION/Sparkle-$SPARKLE_VERSION.tar.xz"
+          mkdir -p sparkle-tools
+          tar -xf Sparkle.tar.xz -C sparkle-tools
+
+      - name: Generate appcast
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          GENERATE_APPCAST=$(find sparkle-tools -name generate_appcast -type f | head -1)
+
+          if [ -z "$GENERATE_APPCAST" ]; then
+            echo "::error::generate_appcast not found in Sparkle tools archive"
+            exit 1
+          fi
+
+          echo "Using: $GENERATE_APPCAST"
+
+          echo "$SPARKLE_PRIVATE_KEY" | "$GENERATE_APPCAST" \
+            --ed-key-file - \
+            --download-url-prefix "${{ inputs.github_pages_url }}/$RELEASES_DIR/" \
+            --release-notes-url-prefix "${{ inputs.github_pages_url }}/$RELEASES_DIR/" \
+            --link "${{ inputs.link_url || format('{0}/{1}', github.server_url, github.repository) }}" \
+            --maximum-versions ${{ inputs.max_appcast_versions }} \
+            "$RELEASES_DIR/"
+
+      # ──────────────────────────────────────────────
+      # 8. Commit & push to main
+      # ──────────────────────────────────────────────
+      - name: Commit release artifacts
+        run: |
+          rm -rf "$RELEASES_DIR/old_updates"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add \
+            "$XCCONFIG" \
+            "$RELEASES_DIR/appcast.xml" \
+            "$RELEASES_DIR/$APP_NAME.md" \
+            "$RELEASES_DIR/$APP_NAME.dmg"
+          git commit -m "Release v$VERSION (build $BUILD_NUMBER)"
+
+          # Rebase onto latest main to handle any concurrent pushes
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
+
+      # ──────────────────────────────────────────────
+      # 9. Create GitHub Release
+      # ──────────────────────────────────────────────
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v$VERSION" \
+            --title "v$VERSION" \
+            --notes-file "$RELEASES_DIR/$APP_NAME.md" \
+            "build/$APP_NAME.dmg#$APP_NAME.dmg"
